@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приём и поступление | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- ADMISSION PAGE CONTENT --- */
+        .admission-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .section-title i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        /* Documents List */
+        .documents-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .document-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+        .document-item:hover {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transform: translateX(5px);
+        }
+        .document-icon {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .document-content {
+            flex-grow: 1;
+        }
+        .document-content h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .document-content p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        .document-note {
+            font-size: 0.9rem;
+            color: var(--accent-text);
+            background: #ecfccb;
+            padding: 5px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* Requirements Grid */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .requirement-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .requirement-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .requirement-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .requirement-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .requirement-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .requirement-card li {
+            color: var(--text-muted);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .requirement-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Calendar Timeline */
+        .calendar-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 30px;
+            position: relative;
+            padding-left: 40px;
+        }
+        .calendar-timeline:before {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid #f1f5f9;
+            transition: all 0.3s;
+        }
+        .timeline-item:hover {
+            border-color: var(--primary);
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: -33px;
+            top: 25px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+        .timeline-date {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .timeline-desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .timeline-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* Scholarships Grid */
+        .scholarships-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .scholarship-card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            border: 2px solid #f1f5f9;
+            transition: all 0.4s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .scholarship-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+        .scholarship-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary);
+        }
+        .scholarship-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .scholarship-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        .scholarship-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .scholarship-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .scholarship-desc {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .scholarship-requirements {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .scholarship-requirements h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .scholarship-requirements ul {
+            list-style: none;
+            padding: 0;
+        }
+        .scholarship-requirements li {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        .scholarship-requirements li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .scholarship-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        /* Tuition Fees */
+        .tuition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .tuition-card {
+            background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .tuition-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, white 100%);
+            transform: scale(1.05);
+        }
+        .tuition-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .tuition-card.featured:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+        .tuition-program {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+        .tuition-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .tuition-period {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .tuition-features {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+        .tuition-features li {
+            color: var(--text-muted);
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        .tuition-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .tuition-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+
+        /* CTA Button */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+        }
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .btn-apply {
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(163, 230, 53, 0.3);
+        }
+        .btn-apply:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(163, 230, 53, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .admission-container {
+                padding: 30px 20px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .content-section {
+                padding: 30px 20px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .calendar-timeline {
+                padding-left: 30px;
+            }
+            .calendar-timeline:before {
+                left: 10px;
+            }
+            .timeline-item:before {
+                left: -23px;
+            }
+            .tuition-card.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item active">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="admission-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Приём и поступление</h1>
+            <p>Вся необходимая информация для поступления в наш университет: документы, требования, сроки и возможности</p>
+        </div>
+
+        <!-- Documents Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-file-alt"></i>
+                Список документов
+            </h2>
+            <div class="section-content">
+                <p>Для поступления необходимо подготовить следующие документы:</p>
+            </div>
+            <div class="documents-list">
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Удостоверение личности (копия)</h3>
+                        <p>Копия для сверки с оригиналом</p>
+                        <span class="document-note">Обязательно</span>
+                    </div>
+                </div>
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Документ об образовании (аттестат/диплом)</h3>
+                        <p>Оригинал и копия</p>
+                        <span class="document-note">Обязательно</span>
+                    </div>
+                </div>
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Фотографии</h3>
+                        <p>6 фотографий размером 3x4 см</p>
+                        <span class="document-note">Обязательно</span>
+                    </div>
+                </div>
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Медицинская справка</h3>
+                        <p>Медицинская справка по форме 086-У</p>
+                        <span class="document-note">Обязательно</span>
+                    </div>
+                </div>
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Документы о достижениях</h3>
+                        <p>Грамоты и сертификаты об олимпиадах, конкурсах, спортивных достижениях (при наличии)</p>
+                        <span class="document-note">Дополнительно</span>
+                    </div>
+                </div>
+                <div class="document-item">
+                    <div class="document-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <div class="document-content">
+                        <h3>Языковой сертификат</h3>
+                        <p>IELTS, TOEFL или другие международные языковые сертификаты (при наличии)</p>
+                        <span class="document-note">Дополнительно</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-clipboard-check"></i>
+                Талаптар
+            </h2>
+            <div class="section-content">
+                <p>Для поступления необходимо выполнить следующие требования:</p>
+            </div>
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Уровень образования</h3>
+                    <ul>
+                        <li>Общее среднее образование</li>
+                        <li>Среднее профессиональное образование</li>
+                        <li>Высшее образование (для магистратуры)</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Минимальный балл</h3>
+                    <ul>
+                        <li>Бакалавриат: 70+ баллов</li>
+                        <li>Магистратура: 75+ баллов</li>
+                        <li>Докторантура: 80+ баллов</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-language"></i>
+                    <h3>Языковые требования</h3>
+                    <ul>
+                        <li>Казахский язык: уровень B2</li>
+                        <li>Английский язык: IELTS 5.5+ (для международных программ)</li>
+                        <li>Русский язык: уровень B1</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Возраст</h3>
+                    <ul>
+                        <li>Бакалавриат: 17-25 лет</li>
+                        <li>Магистратура: без ограничений</li>
+                        <li>Докторантура: без ограничений</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-calendar-check"></i>
+                Календарь (сроки)
+            </h2>
+            <div class="section-content">
+                <p>Календарь поступления на 2024-2025 учебный год:</p>
+            </div>
+            <div class="calendar-timeline">
+                <div class="timeline-item">
+                    <span class="timeline-date">1 марта - 15 мая</span>
+                    <h3 class="timeline-title">Подача документов</h3>
+                    <p class="timeline-desc">Начинается приём документов. Подготовьте все документы и подайте их онлайн или лично.</p>
+                    <span class="timeline-badge">Начало</span>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-date">20 мая - 10 июня</span>
+                    <h3 class="timeline-title">ЕНТ (Единое национальное тестирование)</h3>
+                    <p class="timeline-desc">Проводится единое национальное тестирование. Начните подготовку к тестированию заранее.</p>
+                    <span class="timeline-badge">Важно</span>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-date">15 июня - 25 июня</span>
+                    <h3 class="timeline-title">Объявление результатов</h3>
+                    <p class="timeline-desc">Объявляются результаты ЕНТ. Проверьте свои баллы и оцените возможности получения гранта.</p>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-date">1 июля - 20 июля</span>
+                    <h3 class="timeline-title">Распределение грантов</h3>
+                    <p class="timeline-desc">Распределяются государственные образовательные гранты. Оцените свои возможности получения гранта.</p>
+                    <span class="timeline-badge">Грант</span>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-date">25 июля - 10 августа</span>
+                    <h3 class="timeline-title">Приёмная комиссия</h3>
+                    <p class="timeline-desc">Финальные решения приёмной комиссии. Уведомляются поступившие абитуриенты.</p>
+                </div>
+                <div class="timeline-item">
+                    <span class="timeline-date">15 августа - 1 сентября</span>
+                    <h3 class="timeline-title">Регистрация и начало обучения</h3>
+                    <p class="timeline-desc">Поступившие студенты регистрируются и начинается учебный процесс. Начинаются лекции и семинары.</p>
+                    <span class="timeline-badge">Начало обучения</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scholarships Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-gift"></i>
+                Стипендии / гранты
+            </h2>
+            <div class="section-content">
+                <p>Наш университет предлагает различные стипендии и гранты:</p>
+            </div>
+            <div class="scholarships-grid">
+                <div class="scholarship-card">
+                    <span class="scholarship-badge">Государственный</span>
+                    <div class="scholarship-header">
+                        <div class="scholarship-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h3 class="scholarship-title">Государственный образовательный грант</h3>
+                    </div>
+                    <div class="scholarship-amount">100%</div>
+                    <p class="scholarship-desc">Полное покрытие стоимости обучения. Распределяется по результатам ЕНТ.</p>
+                    <div class="scholarship-requirements">
+                        <h4>Требования:</h4>
+                        <ul>
+                            <li>Результат ЕНТ 100+ баллов</li>
+                            <li>Средний балл среднего образования 4.5+</li>
+                            <li>Гражданство Казахстана</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scholarship-card">
+                    <span class="scholarship-badge">Ректорская</span>
+                    <div class="scholarship-header">
+                        <div class="scholarship-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="scholarship-title">Ректорская стипендия</h3>
+                    </div>
+                    <div class="scholarship-amount">50%</div>
+                    <p class="scholarship-desc">Скидка 50% на стоимость обучения. Для студентов с высокими академическими показателями.</p>
+                    <div class="scholarship-requirements">
+                        <h4>Требования:</h4>
+                        <ul>
+                            <li>Результат ЕНТ 90+ баллов</li>
+                            <li>Средний балл среднего образования 4.3+</li>
+                            <li>Победитель олимпиад (дополнительно)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scholarship-card">
+                    <span class="scholarship-badge">Спортивная</span>
+                    <div class="scholarship-header">
+                        <div class="scholarship-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h3 class="scholarship-title">Спортивная стипендия</h3>
+                    </div>
+                    <div class="scholarship-amount">30%</div>
+                    <p class="scholarship-desc">Для студентов со спортивными достижениями. Скидка 30% на стоимость обучения.</p>
+                    <div class="scholarship-requirements">
+                        <h4>Требования:</h4>
+                        <ul>
+                            <li>Спортивный разряд (при наличии)</li>
+                            <li>Победы в республиканских/международных соревнованиях</li>
+                            <li>Результат ЕНТ 70+ баллов</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scholarship-card">
+                    <span class="scholarship-badge">Научная</span>
+                    <div class="scholarship-header">
+                        <div class="scholarship-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <h3 class="scholarship-title">Научная стипендия</h3>
+                    </div>
+                    <div class="scholarship-amount">40%</div>
+                    <p class="scholarship-desc">Для студентов, проявивших активность в научных исследованиях. Скидка 40% на стоимость обучения.</p>
+                    <div class="scholarship-requirements">
+                        <h4>Требования:</h4>
+                        <ul>
+                            <li>Участие в научных проектах</li>
+                            <li>Автор научных статей (дополнительно)</li>
+                            <li>Результат ЕНТ 85+ баллов</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tuition Fees Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-dollar-sign"></i>
+                Стоимость обучения
+            </h2>
+            <div class="section-content">
+                <p>Размер стоимости обучения на 2024-2025 учебный год:</p>
+            </div>
+            <div class="tuition-grid">
+                <div class="tuition-card">
+                    <div class="tuition-program">Бакалавриат</div>
+                    <div class="tuition-amount">450 000 ₸</div>
+                    <div class="tuition-period">в год</div>
+                    <ul class="tuition-features">
+                        <li>4 года обучения</li>
+                        <li>Все программы</li>
+                        <li>Доступ к библиотеке</li>
+                        <li>Спортивный зал</li>
+                    </ul>
+                </div>
+                <div class="tuition-card featured">
+                    <div class="tuition-badge">Самый популярный</div>
+                    <div class="tuition-program">Магистратура</div>
+                    <div class="tuition-amount">550 000 ₸</div>
+                    <div class="tuition-period">в год</div>
+                    <ul class="tuition-features">
+                        <li>2 года обучения</li>
+                        <li>Степень магистра</li>
+                        <li>Научные проекты</li>
+                        <li>Международные возможности</li>
+                        <li>Стажировки</li>
+                    </ul>
+                </div>
+                <div class="tuition-card">
+                    <div class="tuition-program">Докторантура</div>
+                    <div class="tuition-amount">650 000 ₸</div>
+                    <div class="tuition-period">в год</div>
+                    <ul class="tuition-features">
+                        <li>3-4 года обучения</li>
+                        <li>Степень PhD</li>
+                        <li>Научные исследования</li>
+                        <li>Международные конференции</li>
+                        <li>Работа с ведущими учёными</li>
+                    </ul>
+                </div>
+                <div class="tuition-card">
+                    <div class="tuition-program">Международная программа</div>
+                    <div class="tuition-amount">1 200 000 ₸</div>
+                    <div class="tuition-period">в год</div>
+                    <ul class="tuition-features">
+                        <li>Обучение на английском языке</li>
+                        <li>Международный диплом</li>
+                        <li>Программы обмена</li>
+                        <li>Партнёрство с мировыми университетами</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section-content" style="margin-top: 30px; padding: 25px; background: #f8fafc; border-radius: 16px;">
+                <p><strong>Примечание:</strong> Размер стоимости обучения может варьироваться в зависимости от программы. Для получения точной информации свяжитесь с приёмной комиссией. Оплату можно производить единовременно или по семестрам.</p>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2>Готовы? Подготовьте необходимые документы для поступления!</h2>
+            <p>Наши специалисты готовы ответить на все ваши вопросы</p>
+            <a href="#" class="btn-apply">Подать документы</a>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic content loading based on URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const uniId = urlParams.get('id') || urlParams.get('uni');
+        
+        if (uniId) {
+            // This would typically fetch from an API
+            console.log('Loading admission info for university:', uniId);
+        }
+
+        // Smooth scroll for timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                alert('Вы вышли из системы');
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            const profileNameEl = document.getElementById('profileName');
+            if (profileNameEl) {
+                profileNameEl.innerHTML = `<i class="fas fa-user"></i><span>${userName}</span>`;
+            }
+            
+            const profileEmailEl = document.getElementById('profileEmail');
+            if (profileEmailEl) {
+                profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i><span>${userEmail}</span>`;
+            }
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

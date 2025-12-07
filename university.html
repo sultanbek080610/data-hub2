@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Об университете | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- ABOUT PAGE CONTENT --- */
+        .about-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* University Header Section */
+        .uni-header {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .uni-logo-wrapper {
+            flex-shrink: 0;
+            width: 180px;
+            height: 180px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+        .uni-logo-wrapper img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            border-radius: 16px;
+            background: white;
+            padding: 15px;
+        }
+        .uni-header-info h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .uni-header-info .uni-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .uni-header-info .uni-brief {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 700px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .section-title i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+        .section-content p {
+            margin-bottom: 20px;
+        }
+
+        /* Mission & Values Grid */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .value-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .value-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .value-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .value-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .value-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Achievements Timeline */
+        .achievements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .achievement-item {
+            display: flex;
+            gap: 20px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border-left: 4px solid var(--accent);
+            transition: 0.3s;
+        }
+        .achievement-item:hover {
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .achievement-year {
+            flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+            background: var(--primary);
+            color: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+        .achievement-content h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .achievement-content p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Photo Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .gallery-item {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.4s;
+        }
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.2);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.5s;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 20px;
+            color: white;
+            font-weight: 600;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        /* Leadership Section */
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .leader-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #f1f5f9;
+            transition: all 0.4s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .leader-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary);
+        }
+        .leader-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 4px solid var(--accent);
+            object-fit: cover;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .leader-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .leader-position {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        .leader-bio {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 30px 20px;
+            }
+            .uni-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px;
+            }
+            .uni-header-info h1 {
+                font-size: 2rem;
+            }
+            .content-section {
+                padding: 30px 20px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            .leadership-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item active">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пайдаланушы</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Менің профилім</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="about-container">
+        <!-- University Header -->
+        <div class="uni-header">
+            <div class="uni-logo-wrapper">
+                <img src="https://via.placeholder.com/140x140/2563eb/ffffff?text=UNI" alt="University Logo" id="uniLogo">
+            </div>
+            <div class="uni-header-info">
+                <h1 id="uniName">Университет аты</h1>
+                <div class="uni-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="uniCity">Қала</span>
+                </div>
+                <p class="uni-brief" id="uniBrief">
+                    Біздің университет - білім беру және ғылыми зерттеулер саласындағы көшбасшы. 
+                    Біз студенттерге заманауи білім беру, инновациялық зерттеулер және халықаралық 
+                    ынтымақтастық мүмкіндіктерін ұсынамыз.
+                </p>
+            </div>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-bullseye"></i>
+                Миссия және Визия
+            </h2>
+            <div class="section-content">
+                <p>
+                    Біздің миссиямыз - білім беру сапасын үнемі жақсарту, инновациялық зерттеулерді 
+                    дамыту және қоғамға пайдалы мамандар дайындау. Біз білім беру процесінде 
+                    заманауи технологияларды қолданып, студенттердің креативтілігін және 
+                    сыни ойлауын дамытуға бағытталғанбыз.
+                </p>
+                <p>
+                    Визиямыз - Орталық Азиядағы ең үздік университеттердің бірі болу және 
+                    халықаралық деңгейде танылған білім беру орталығына айналу.
+                </p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Сапалы білім</h3>
+                    <p>Халықаралық стандарттарға сәйкес келетін заманауи білім беру бағдарламалары</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-flask"></i>
+                    <h3>Инновациялар</h3>
+                    <p>Ғылыми зерттеулер мен технологиялық дамуға бағытталған жұмыстар</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-globe"></i>
+                    <h3>Халықаралық ынтымақтастық</h3>
+                    <p>Әлемдік университеттермен серіктестік және алмасу бағдарламалары</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Студенттердің дамуы</h3>
+                    <p>Жеке даму мен кәсіби дайындыққа кешенді қолдау</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                Тарих
+            </h2>
+            <div class="section-content">
+                <p>
+                    Біздің университет ұзақ және бай тарихқа ие. Негізгі кезеңдер мен маңызды 
+                    оқиғалар біздің даму жолымызды анықтады. Біз өз тарихымызбен мақтанамыз 
+                    және оны болашаққа бағытталған инновациялармен біріктіреміз.
+                </p>
+            </div>
+            <div class="achievements-list">
+                <div class="achievement-item">
+                    <div class="achievement-year">1934</div>
+                    <div class="achievement-content">
+                        <h3>Негізін қалау</h3>
+                        <p>Университет ресми түрде құрылды және алғашқы студенттерді қабылдады</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-year">1950</div>
+                    <div class="achievement-content">
+                        <h3>Кеңейту кезеңі</h3>
+                        <p>Жаңа факультеттер мен кафедралар ашылып, білім беру бағдарламалары кеңейтілді</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-year">1991</div>
+                    <div class="achievement-content">
+                        <h3>Тәуелсіздік кезеңі</h3>
+                        <p>Елдің тәуелсіздігінен кейін университет жаңа даму кезеңіне кірді</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-year">2010</div>
+                    <div class="achievement-content">
+                        <h3>Халықаралық мойындау</h3>
+                        <p>Халықаралық рейтингтерде жоғары орындарға ие болды</p>
+                    </div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-year">2024</div>
+                    <div class="achievement-content">
+                        <h3>Заманауи даму</h3>
+                        <p>Цифрлық трансформация және инновациялық жобаларды іске қосу</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-trophy"></i>
+                Жетістіктер
+            </h2>
+            <div class="section-content">
+                <p>
+                    Біздің университет көптеген жетістіктерге қол жеткізді және әртүрлі салаларда 
+                    танымал. Біздің студенттер мен оқытушылар халықаралық деңгейде танылған 
+                    марапаттарға ие болды.
+                </p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-medal"></i>
+                    <h3>Рейтингтегі орын</h3>
+                    <p>Ұлттық рейтингте топ-3 университеттердің қатарында</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-award"></i>
+                    <h3>Халықаралық мойындау</h3>
+                    <p>QS World University Rankings-те 500+ орын</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Зерттеулер</h3>
+                    <p>Жылына 500+ ғылыми мақалалар мен патенттер</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Серіктестіктер</h3>
+                    <p>50+ халықаралық университеттермен ынтымақтастық</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo Gallery -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-images"></i>
+                Фотогалерея
+            </h2>
+            <div class="section-content">
+                <p>Біздің кампус, аудиториялар, зертханалар және студенттік өмірдің көріністері</p>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800" alt="Кампус">
+                    <div class="gallery-overlay">Негізгі кампус</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800" alt="Кітапхана">
+                    <div class="gallery-overlay">Орталық кітапхана</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1532619675605-1ede6c4ed2b5?w=800" alt="Зертхана">
+                    <div class="gallery-overlay">Зертхана</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Аудитория">
+                    <div class="gallery-overlay">Заманауи аудитория</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Спорт залы">
+                    <div class="gallery-overlay">Спорт кешені</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800" alt="Студенттер">
+                    <div class="gallery-overlay">Студенттік өмір</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leadership Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-users-cog"></i>
+                Басшылық
+            </h2>
+            <div class="section-content">
+                <p>Біздің тәжірибелі және білікті басшылық командасы университеттің стратегиялық 
+                дамуын басқаруда және білім беру сапасын қамтамасыз етуде маңызды рөл атқарады.</p>
+            </div>
+            <div class="leadership-grid">
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" alt="Ректор" class="leader-avatar">
+                    <h3 class="leader-name">Ахметов Асқар</h3>
+                    <p class="leader-position">Ректор</p>
+                    <p class="leader-bio">Профессор, педагогика ғылымдарының докторы. 20+ жыл білім беру саласындағы тәжірибе.</p>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400" alt="Проректор" class="leader-avatar">
+                    <h3 class="leader-name">Нұрғалиева Айгүл</h3>
+                    <p class="leader-position">Академиялық жұмыстар жөніндегі проректор</p>
+                    <p class="leader-bio">Профессор, физика-математика ғылымдарының докторы. Халықаралық зерттеулердің авторы.</p>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400" alt="Проректор" class="leader-avatar">
+                    <h3 class="leader-name">Қасымов Ерлан</h3>
+                    <p class="leader-position">Ғылыми жұмыстар жөніндегі проректор</p>
+                    <p class="leader-bio">Профессор, химия ғылымдарының докторы. 100+ ғылыми мақалалардың авторы.</p>
+                </div>
+                <div class="leader-card">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400" alt="Проректор" class="leader-avatar">
+                    <h3 class="leader-name">Сейтқазиева Гүлнұр</h3>
+                    <p class="leader-position">Халықаралық ынтымақтастық жөніндегі проректор</p>
+                    <p class="leader-bio">Доцент, филология ғылымдарының кандидаты. Халықаралық бағдарламалардың координаторы.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic content loading based on URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const uniId = urlParams.get('id') || urlParams.get('uni');
+        
+        // Example: Load university data (can be replaced with API call)
+        if (uniId) {
+            // This would typically fetch from an API
+            // For now, we'll use placeholder data
+            console.log('Loading university:', uniId);
+        }
+
+        // Gallery image click handler
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const imgSrc = this.querySelector('img').src;
+                // Could open in a lightbox/modal here
+            });
+        });
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Шынымен шығасыз ба?')) {
+                alert('Сіз жүйеден шықтыңыз');
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пайдаланушы';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            const profileNameEl = document.getElementById('profileName');
+            if (profileNameEl) {
+                profileNameEl.innerHTML = `<i class="fas fa-user"></i><span>${userName}</span>`;
+            }
+            
+            const profileEmailEl = document.getElementById('profileEmail');
+            if (profileEmailEl) {
+                profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i><span>${userEmail}</span>`;
+            }
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

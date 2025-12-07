@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Международное сотрудничество | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Maps API -->
+    <!-- ВАЖНО: Замените YOUR_API_KEY на ваш реальный Google Maps API ключ в строке ниже -->
+    <script>
+        // Вставьте ваш Google Maps API ключ здесь:
+        const GOOGLE_MAPS_API_KEY = 'AIzaSyCmNre7CBCdIpcioXFntkQJbw1BJ_NYlGk';
+        
+        // Функция инициализации карты (вызывается автоматически при загрузке API)
+        function initMap() {
+            // Центр карты - Алматы, Казахстан
+            const center = { lat: 43.2220, lng: 76.8512 };
+            
+            // Создаём карту
+            const map = new google.maps.Map(document.getElementById('google-map'), {
+                zoom: 3,
+                center: center,
+                mapTypeId: 'roadmap',
+                styles: [
+                    {
+                        featureType: 'poi',
+                        elementType: 'labels',
+                        stylers: [{ visibility: 'off' }]
+                    }
+                ]
+            });
+            
+            // Координаты партнёрских университетов
+            const partnerUniversities = [
+                // Германия
+                { lat: 52.5200, lng: 13.4050, name: 'Университет Берлина', country: 'Германия', flag: '🇩🇪' },
+                { lat: 48.1351, lng: 11.5820, name: 'Университет Мюнхена', country: 'Германия', flag: '🇩🇪' },
+                { lat: 50.1109, lng: 8.6821, name: 'Университет Франкфурта', country: 'Германия', flag: '🇩🇪' },
+                { lat: 51.2277, lng: 6.7735, name: 'Университет Дюссельдорфа', country: 'Германия', flag: '🇩🇪' },
+                { lat: 53.5511, lng: 9.9937, name: 'Университет Гамбурга', country: 'Германия', flag: '🇩🇪' },
+                
+                // Франция
+                { lat: 48.8566, lng: 2.3522, name: 'Университет Сорбонны', country: 'Франция', flag: '🇫🇷' },
+                { lat: 45.7640, lng: 4.8357, name: 'Университет Лиона', country: 'Франция', flag: '🇫🇷' },
+                { lat: 43.2965, lng: 5.3698, name: 'Университет Марселя', country: 'Франция', flag: '🇫🇷' },
+                { lat: 47.2184, lng: -1.5536, name: 'Университет Нанта', country: 'Франция', flag: '🇫🇷' },
+                
+                // Польша
+                { lat: 52.2297, lng: 21.0122, name: 'Варшавский университет', country: 'Польша', flag: '🇵🇱' },
+                { lat: 50.0647, lng: 19.9450, name: 'Ягеллонский университет', country: 'Польша', flag: '🇵🇱' },
+                { lat: 51.1079, lng: 17.0385, name: 'Вроцлавский университет', country: 'Польша', flag: '🇵🇱' },
+                
+                // Турция
+                { lat: 41.0082, lng: 28.9784, name: 'Стамбульский университет', country: 'Турция', flag: '🇹🇷' },
+                { lat: 39.9334, lng: 32.8597, name: 'Анкарский университет', country: 'Турция', flag: '🇹🇷' },
+                { lat: 38.4237, lng: 27.1428, name: 'Эгейский университет', country: 'Турция', flag: '🇹🇷' },
+                { lat: 36.8969, lng: 30.7133, name: 'Акденизский университет', country: 'Турция', flag: '🇹🇷' },
+                { lat: 41.0766, lng: 29.0230, name: 'Босфорский университет', country: 'Турция', flag: '🇹🇷' },
+                { lat: 38.3593, lng: 38.3087, name: 'Университет Инёню', country: 'Турция', flag: '🇹🇷' },
+                { lat: 36.8000, lng: 34.6333, name: 'Университет Мерсин', country: 'Турция', flag: '🇹🇷' },
+                { lat: 37.0662, lng: 37.3833, name: 'Университет Газиантепа', country: 'Турция', flag: '🇹🇷' },
+                
+                // Китай
+                { lat: 39.9042, lng: 116.4074, name: 'Пекинский университет', country: 'Китай', flag: '🇨🇳' },
+                { lat: 31.2304, lng: 121.4737, name: 'Шанхайский университет', country: 'Китай', flag: '🇨🇳' },
+                { lat: 22.3193, lng: 114.1694, name: 'Гонконгский университет', country: 'Китай', flag: '🇨🇳' },
+                { lat: 30.5728, lng: 104.0668, name: 'Сычуаньский университет', country: 'Китай', flag: '🇨🇳' },
+                { lat: 32.0603, lng: 118.7969, name: 'Нанкинский университет', country: 'Китай', flag: '🇨🇳' },
+                { lat: 23.1291, lng: 113.2644, name: 'Сунь Ятсен университет', country: 'Китай', flag: '🇨🇳' },
+                
+                // Корея
+                { lat: 37.5665, lng: 126.9780, name: 'Сеульский национальный университет', country: 'Корея', flag: '🇰🇷' },
+                { lat: 35.1796, lng: 129.0756, name: 'Пусанский университет', country: 'Корея', flag: '🇰🇷' },
+                { lat: 36.3504, lng: 127.3845, name: 'KAIST', country: 'Корея', flag: '🇰🇷' },
+                
+                // Япония
+                { lat: 35.6762, lng: 139.6503, name: 'Токийский университет', country: 'Япония', flag: '🇯🇵' },
+                { lat: 34.6937, lng: 135.5023, name: 'Университет Осаки', country: 'Япония', flag: '🇯🇵' },
+                { lat: 35.0116, lng: 135.7681, name: 'Киотский университет', country: 'Япония', flag: '🇯🇵' },
+                
+                // США
+                { lat: 40.7128, lng: -74.0060, name: 'Колумбийский университет', country: 'США', flag: '🇺🇸' },
+                { lat: 37.7749, lng: -122.4194, name: 'Стэнфордский университет', country: 'США', flag: '🇺🇸' },
+                { lat: 42.3601, lng: -71.0589, name: 'Гарвардский университет', country: 'США', flag: '🇺🇸' },
+                { lat: 34.0522, lng: -118.2437, name: 'UCLA', country: 'США', flag: '🇺🇸' },
+                
+                // Канада
+                { lat: 43.6532, lng: -79.3832, name: 'Торонтский университет', country: 'Канада', flag: '🇨🇦' },
+                { lat: 45.5017, lng: -73.5673, name: 'Университет Макгилла', country: 'Канада', flag: '🇨🇦' },
+                { lat: 49.2827, lng: -123.1207, name: 'Университет Британской Колумбии', country: 'Канада', flag: '🇨🇦' }
+            ];
+            
+            // Создаём маркеры для каждого университета
+            partnerUniversities.forEach((university, index) => {
+                const marker = new google.maps.Marker({
+                    position: { lat: university.lat, lng: university.lng },
+                    map: map,
+                    title: university.name,
+                    icon: {
+                        url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: new google.maps.Size(40, 40)
+                    },
+                    animation: google.maps.Animation.DROP
+                });
+                
+                // Информационное окно для маркера
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding: 10px; min-width: 200px;">
+                            <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">
+                                ${university.flag} ${university.name}
+                            </h3>
+                            <p style="margin: 0; color: #666; font-size: 14px;">
+                                ${university.country}
+                            </p>
+                        </div>
+                    `
+                });
+                
+                // Открытие информационного окна при клике на маркер
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+            
+            // Автоматически открываем карту при загрузке страницы
+            console.log('Google Maps инициализирована с', partnerUniversities.length, 'партнёрскими университетами');
+        }
+        
+        // Загружаем Google Maps API с ключом
+        function loadGoogleMaps() {
+            if (GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY') {
+                console.warn('⚠️ ВНИМАНИЕ: Замените YOUR_API_KEY на ваш реальный Google Maps API ключ!');
+                document.getElementById('google-map').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666; padding: 20px; text-align: center;">
+                        <div>
+                            <h3 style="color: #dc2626; margin-bottom: 10px;">⚠️ API ключ не настроен</h3>
+                            <p>Пожалуйста, замените YOUR_API_KEY на ваш реальный Google Maps API ключ в коде страницы.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        
+        // Загружаем карту при загрузке страницы
+        window.addEventListener('DOMContentLoaded', loadGoogleMaps);
+    </script>
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- INTERNATIONAL PAGE CONTENT --- */
+        .international-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .section-title i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        /* Partner Universities Map */
+        .partners-map-container {
+            position: relative;
+            height: 600px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            margin-top: 30px;
+            border: 2px solid #e2e8f0;
+        }
+        #google-map {
+            width: 100%;
+            height: 100%;
+        }
+        .partners-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .partner-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .partner-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .partner-flag {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .partner-info h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .partner-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Exchange Programs */
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .program-card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            border: 2px solid #f1f5f9;
+            transition: all 0.4s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .program-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+        }
+        .program-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary);
+        }
+        .program-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .program-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+        .program-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+        .program-desc {
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+        }
+        .program-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+        .program-features li {
+            color: var(--text-muted);
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+        }
+        .program-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .program-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        /* Guide Section */
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 30px;
+            position: relative;
+            padding-left: 40px;
+        }
+        .guide-steps:before {
+            content: "";
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+        }
+        .guide-step {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid #f1f5f9;
+            transition: all 0.3s;
+        }
+        .guide-step:hover {
+            border-color: var(--primary);
+            transform: translateX(10px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+        .guide-step:before {
+            content: "";
+            position: absolute;
+            left: -33px;
+            top: 30px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .step-desc {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        /* Requirements Grid */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .requirement-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .requirement-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .requirement-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .requirement-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .requirement-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .requirement-card li {
+            color: var(--text-muted);
+            line-height: 1.8;
+            padding-left: 25px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .requirement-card li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+        .stat-card.accent {
+            background: linear-gradient(135deg, var(--accent) 0%, #84cc16 100%);
+            color: var(--accent-text);
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .international-container {
+                padding: 30px 20px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .content-section {
+                padding: 30px 20px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .partners-map-container {
+                height: 400px;
+            }
+            .guide-steps {
+                padding-left: 30px;
+            }
+            .guide-steps:before {
+                left: 10px;
+            }
+            .guide-step:before {
+                left: -23px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item active">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="international-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Международное сотрудничество</h1>
+            <p>Наш университет сотрудничает со многими странами мира и предлагает международные образовательные возможности</p>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="content-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Партнёрских университетов</div>
+                </div>
+                <div class="stat-card accent">
+                    <div class="stat-number">200+</div>
+                    <div class="stat-label">Студентов по обмену</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">Стран</div>
+                </div>
+                <div class="stat-card accent">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">Международных программ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner Universities Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-globe-americas"></i>
+                Карта партнёрских университетов
+            </h2>
+            <div class="section-content">
+                <p>Наш университет сотрудничает с 50+ университетами из 30+ стран мира. На карте ниже показано расположение основных партнёров.</p>
+            </div>
+            <div class="partners-map-container">
+                <div id="google-map" style="width: 100%; height: 100%; border-radius: 24px; overflow: hidden;"></div>
+            </div>
+            <div class="partners-list">
+                <div class="partner-card">
+                    <div class="partner-flag">🇩🇪</div>
+                    <div class="partner-info">
+                        <h3>Германия</h3>
+                        <p>5 партнёрских университетов</p>
+                    </div>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-flag">🇹🇷</div>
+                    <div class="partner-info">
+                        <h3>Турция</h3>
+                        <p>8 партнёрских университетов</p>
+                    </div>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-flag">🇨🇳</div>
+                    <div class="partner-info">
+                        <h3>Китай</h3>
+                        <p>6 партнёрских университетов</p>
+                    </div>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-flag">🇺🇸</div>
+                    <div class="partner-info">
+                        <h3>США</h3>
+                        <p>4 партнёрских университета</p>
+                    </div>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-flag">🇰🇷</div>
+                    <div class="partner-info">
+                        <h3>Корея</h3>
+                        <p>3 партнёрских университета</p>
+                    </div>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-flag">🇫🇷</div>
+                    <div class="partner-info">
+                        <h3>Франция</h3>
+                        <p>4 партнёрских университета</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exchange Programs Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-exchange-alt"></i>
+                Программы обмена
+            </h2>
+            <div class="section-content">
+                <p>Наш университет предлагает различные международные программы обмена:</p>
+            </div>
+            <div class="programs-grid">
+                <div class="program-card">
+                    <div class="program-header">
+                        <div class="program-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="program-title">Erasmus+</h3>
+                    </div>
+                    <p class="program-desc">
+                        Европейские возможности для обучения, исследований и стажировок. Обмен с университетами из 30+ стран Европы.
+                    </p>
+                    <ul class="program-features">
+                        <li>Срок обучения 3-12 месяцев</li>
+                        <li>Предоставляется стипендия</li>
+                        <li>Признание европейских кредитов</li>
+                        <li>Языковые подготовительные курсы</li>
+                    </ul>
+                    <span class="program-badge">Европа</span>
+                </div>
+
+                <div class="program-card">
+                    <div class="program-header">
+                        <div class="program-icon">
+                            <i class="fas fa-mosque"></i>
+                        </div>
+                        <h3 class="program-title">Mevlana</h3>
+                    </div>
+                    <p class="program-desc">
+                        Программа академического обмена между Турцией и Центральной Азией. Партнёрство с множеством университетов Турции.
+                    </p>
+                    <ul class="program-features">
+                        <li>Обучение 1-2 семестра</li>
+                        <li>Возможность обучения на турецком языке</li>
+                        <li>Межкультурный опыт</li>
+                        <li>Транспортная поддержка</li>
+                    </ul>
+                    <span class="program-badge">Турция</span>
+                </div>
+
+                <div class="program-card">
+                    <div class="program-header">
+                        <div class="program-icon">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <h3 class="program-title">Academic Mobility</h3>
+                    </div>
+                    <p class="program-desc">
+                        Программа академической мобильности между высшими учебными заведениями Казахстана. С университетами всех регионов Казахстана.
+                    </p>
+                    <ul class="program-features">
+                        <li>Обучение 1 семестр</li>
+                        <li>Обмен внутри Казахстана</li>
+                        <li>Государственная поддержка</li>
+                        <li>Межкультурный опыт</li>
+                    </ul>
+                    <span class="program-badge">Казахстан</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide for International Students -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-book-reader"></i>
+                Руководство для иностранных студентов
+            </h2>
+            <div class="section-content">
+                <p>Вся необходимая информация для поступления в наш университет:</p>
+            </div>
+            <div class="guide-steps">
+                <div class="guide-step">
+                    <span class="step-number">Шаг 1</span>
+                    <h3 class="step-title">Подготовка документов</h3>
+                    <p class="step-desc">
+                        Подготовьте документы об образовании (аттестат/диплом), копию паспорта, медицинскую справку, 
+                        фотографии и языковые сертификаты. Все документы должны быть нотариально 
+                        заверены и переведены.
+                    </p>
+                </div>
+                <div class="guide-step">
+                    <span class="step-number">Шаг 2</span>
+                    <h3 class="step-title">Подача онлайн-заявления</h3>
+                    <p class="step-desc">
+                        Заполните онлайн-форму заявления на нашем веб-сайте и загрузите все необходимые документы. 
+                        Срок подачи заявлений: 1 марта - 15 мая.
+                    </p>
+                </div>
+                <div class="guide-step">
+                    <span class="step-number">Шаг 3</span>
+                    <h3 class="step-title">Тестирование</h3>
+                    <p class="step-desc">
+                        Для некоторых программ может потребоваться дополнительное тестирование или собеседование. 
+                        О дате и месте тестирования будет сообщено дополнительно.
+                    </p>
+                </div>
+                <div class="guide-step">
+                    <span class="step-number">Шаг 4</span>
+                    <h3 class="step-title">Получение визы</h3>
+                    <p class="step-desc">
+                        После получения приглашения необходимо получить студенческую визу для въезда в Казахстан. 
+                        Процесс получения визы занимает 2-4 недели.
+                    </p>
+                </div>
+                <div class="guide-step">
+                    <span class="step-number">Шаг 5</span>
+                    <h3 class="step-title">Регистрация и начало обучения</h3>
+                    <p class="step-desc">
+                        Приезжайте в университет и пройдите регистрацию. Мы поможем вам с общежитием, учебными материалами 
+                        и адаптацией.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-clipboard-list"></i>
+                Талаптар
+            </h2>
+            <div class="section-content">
+                <p>Основные требования для иностранных студентов:</p>
+            </div>
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Уровень образования</h3>
+                    <ul>
+                        <li>Общее среднее образование (аттестат)</li>
+                        <li>Для бакалавриата: 12 лет обучения</li>
+                        <li>Для магистратуры: степень бакалавра</li>
+                        <li>Для докторантуры: степень магистра</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-language"></i>
+                    <h3>Языковые требования</h3>
+                    <ul>
+                        <li>Казахский язык: уровень A2 (минимальный)</li>
+                        <li>Русский язык: уровень B1</li>
+                        <li>Английский язык: IELTS 5.5+ (для международных программ)</li>
+                        <li>Требуется языковой сертификат</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-file-medical"></i>
+                    <h3>Здоровье</h3>
+                    <ul>
+                        <li>Медицинская справка (форма 086-У)</li>
+                        <li>Тест на ВИЧ/СПИД</li>
+                        <li>Тест на туберкулёз</li>
+                        <li>Справка о трудоспособности</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h3>Финансовые гарантии</h3>
+                    <ul>
+                        <li>Справка о возможности оплаты обучения</li>
+                        <li>Банковская справка</li>
+                        <li>Спонсорское письмо (при наличии)</li>
+                        <li>Документ о стипендии (при наличии)</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-passport"></i>
+                    <h3>Виза и документы</h3>
+                    <ul>
+                        <li>Действительный паспорт (минимум 2 года)</li>
+                        <li>Студенческая виза</li>
+                        <li>Свидетельство о рождении (копия)</li>
+                        <li>Приглашение на обучение</li>
+                    </ul>
+                </div>
+                <div class="requirement-card">
+                    <i class="fas fa-certificate"></i>
+                    <h3>Дополнительные документы</h3>
+                    <ul>
+                        <li>Мотивационное письмо</li>
+                        <li>Рекомендательные письма (2 шт.)</li>
+                        <li>Портфолио (для некоторых программ)</li>
+                        <li>Документы о достижениях</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="content-section" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+            <h2 class="section-title" style="color: white;">
+                <i class="fas fa-envelope"></i>
+                Контакты
+            </h2>
+            <div class="section-content" style="color: rgba(255,255,255,0.9);">
+                <p>Отдел международного сотрудничества:</p>
+                <div style="margin-top: 25px; display: flex; flex-wrap: wrap; gap: 30px;">
+                    <div>
+                        <strong style="display: block; margin-bottom: 8px;">Email:</strong>
+                        <span>international@university.kz</span>
+                    </div>
+                    <div>
+                        <strong style="display: block; margin-bottom: 8px;">Телефон:</strong>
+                        <span>+7 (727) 123-45-67</span>
+                    </div>
+                    <div>
+                        <strong style="display: block; margin-bottom: 8px;">Адрес:</strong>
+                        <span>г. Алматы, пр. Абая, 123</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Google Maps инициализируется автоматически через initMap()
+
+        // Smooth scroll for guide steps
+        document.querySelectorAll('.guide-step').forEach(step => {
+            step.addEventListener('click', function() {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                alert('Вы вышли из системы');
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            const profileNameEl = document.getElementById('profileName');
+            if (profileNameEl) {
+                profileNameEl.innerHTML = `<i class="fas fa-user"></i><span>${userName}</span>`;
+            }
+            
+            const profileEmailEl = document.getElementById('profileEmail');
+            if (profileEmailEl) {
+                profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i><span>${userEmail}</span>`;
+            }
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

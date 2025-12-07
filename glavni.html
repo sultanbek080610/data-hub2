@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DATAHUB | Smart University Navigator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+            /* Scroll settings managed by JS */
+        }
+        
+        body.map-active { overflow: hidden; } /* Lock scroll on map view */
+
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed; /* Fixed so map slides under */
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+        }
+        .logo i { color: var(--accent); }
+
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- VIEWS CONTAINER --- */
+        .view-container {
+            margin-top: var(--header-height);
+            display: none;
+            animation: fadeInView 0.4s ease;
+        }
+        .view-container.active-view { display: block; }
+
+        @keyframes fadeInView { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================= CATALOG STYLES ================= */
+        .hero-container {
+            max-width: 1280px; margin: 40px auto; padding: 0 20px; text-align: center;
+        }
+        .hero-badge {
+            display: inline-block; background: #ecfccb; color: #3f6212;
+            padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 0.85rem;
+            margin-bottom: 20px; border: 1px solid var(--accent);
+        }
+        .hero-title {
+            font-size: 4rem; line-height: 1.1; font-weight: 800; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-subtitle {
+            font-size: 1.25rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 50px;
+        }
+        
+        /* Search Widget */
+        .search-widget {
+            background: white; border-radius: var(--radius-xl);
+            padding: 30px; box-shadow: var(--shadow-soft);
+            max-width: 900px; margin: 0 auto 60px;
+            display: flex; flex-direction: column; gap: 20px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .input-group { position: relative; }
+        .input-group i {
+            position: absolute; left: 25px; top: 50%; transform: translateY(-50%);
+            color: var(--primary); font-size: 1.2rem;
+        }
+        #mainSearch {
+            width: 100%; padding: 20px 20px 20px 60px;
+            border-radius: 20px; border: 2px solid #f1f5f9;
+            font-size: 1.1rem; background: #f8fafc; outline: none; transition: 0.3s;
+        }
+        #mainSearch:focus { border-color: var(--primary); background: white; }
+
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .filter-chip {
+            background: white; border: 1px solid #e2e8f0;
+            padding: 10px 20px; border-radius: 50px;
+            font-size: 0.9rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; transition: 0.2s;
+        }
+        .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-chip.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+        .filter-chip.promo { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+        /* Catalog Grid */
+        .catalog-section { max-width: 1280px; margin: 0 auto 100px; padding: 0 20px; }
+        .grid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .grid-header h2 { font-size: 2rem; font-weight: 700; }
+        .count-badge { background: #dbeafe; color: var(--primary); padding: 5px 12px; border-radius: 20px; font-weight: 700; }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
+
+        .uni-card {
+            background: white; border-radius: var(--radius-xl); padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.4s; display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .uni-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.15); }
+        .uni-card.hidden { display: none; }
+
+        .card-img-wrapper { height: 200px; border-radius: 24px; overflow: hidden; margin-bottom: 20px; position: relative; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .uni-card:hover .card-img { transform: scale(1.1); }
+        .card-tag {
+            position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.95);
+            padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--text-main);
+        }
+
+        .uni-info { flex-grow: 1; }
+        .uni-city { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700; margin-bottom: 8px; display: block; }
+        .uni-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+        .uni-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; }
+        
+        .card-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 2px solid #f1f5f9; }
+        .rating-box { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1.1rem; }
+        .rating-box i { color: #fbbf24; }
+        .btn-arrow {
+            width: 45px; height: 45px; border-radius: 50%; background: var(--text-main); color: white;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s; text-decoration: none;
+        }
+        .uni-card:hover .btn-arrow { background: var(--accent); color: var(--accent-text); transform: rotate(-45deg); }
+
+        /* ================= MAP VIEW STYLES ================= */
+        #view-map {
+            position: fixed;
+            top: var(--header-height); left: 0; right: 0; bottom: 0;
+            background: white;
+            z-index: 50;
+        }
+
+        #map { width: 100%; height: 100%; }
+
+        .city-controls {
+            position: absolute; top: 20px; left: 20px; z-index: 10;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .city-btn {
+            background: white; border: none; padding: 12px 20px; border-radius: 12px;
+            font-weight: 700; font-family: inherit; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px;
+            transition: all 0.2s; color: var(--text-main);
+        }
+        .city-btn:hover { transform: translateX(5px); color: var(--primary); }
+        .city-btn.active { background: var(--primary); color: white; }
+
+        /* Side Panel */
+        .side-panel {
+            position: absolute; top: 20px; bottom: 20px; right: 20px;
+            width: 400px; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px); border-radius: 24px;
+            box-shadow: -10px 0 40px rgba(0,0,0,0.1); z-index: 20;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .side-panel.open { transform: translateX(0); }
+
+        .panel-header { height: 180px; background-size: cover; background-position: center; position: relative; }
+        .close-btn {
+            position: absolute; top: 15px; left: 15px; width: 36px; height: 36px;
+            background: rgba(0,0,0,0.4); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            backdrop-filter: blur(4px); transition: 0.2s;
+        }
+        .close-btn:hover { background: white; color: black; }
+
+        .panel-content { padding: 25px; flex-grow: 1; overflow-y: auto; }
+        .uni-tag-badge {
+            display: inline-block; background: #dbeafe; color: var(--primary);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 10px;
+        }
+
+        /* AI Chat in Map */
+        .ai-chat {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px;
+            padding: 15px; display: flex; flex-direction: column; height: 320px;
+        }
+        .chat-header { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; margin-bottom: 12px; color: var(--primary); }
+        .messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-right: 5px; }
+        .msg { padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; max-width: 85%; line-height: 1.4; }
+        .msg.bot { background: white; align-self: flex-start; border: 1px solid #e2e8f0; border-bottom-left-radius: 2px; }
+        .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        
+        .input-area { display: flex; gap: 8px; }
+        .chat-input { flex-grow: 1; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; outline: none; }
+        .send-btn { background: var(--text-main); color: white; border: none; width: 36px; border-radius: 8px; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .nav-links { display: none; } /* Simplified mobile nav for demo */
+            .side-panel { width: 100%; top: auto; bottom: 0; border-radius: 24px 24px 0 0; height: 70vh; transform: translateY(120%); }
+            .side-panel.open { transform: translateY(0); }
+            .city-controls { flex-direction: row; bottom: 20px; top: auto; }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <div class="logo" onclick="switchTab('catalog')">
+            <i class="fas fa-layer-group"></i> DataHub
+        </div>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item active" id="tab-catalog">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="view-catalog" class="view-container active-view">
+        <div class="hero-container">
+            <h1 class="hero-title">Найди свой<br>идеальный университет</h1>
+            <p class="hero-subtitle">Умная платформа для абитуриентов Казахстана. Сравнивай гранты, рейтинги и программы обучения в одном месте.</p>
+            
+            <div class="search-widget">
+                <div class="input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="mainSearch" placeholder="Найти вуз, специальность или город...">
+                </div>
+                
+                <div class="filters">
+                    <button class="filter-chip active" data-city="all">Все</button>
+                    <button class="filter-chip" data-city="almaty">Алматы</button>
+                    <button class="filter-chip" data-city="astana">Астана</button>
+                    <button class="filter-chip" data-city="shymkent">Шымкент</button>
+                    <button class="filter-chip promo" data-city="top">TOP-3 🔥</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="catalog-section">
+            <div class="grid-header">
+                <h2>Популярные вузы</h2>
+                <span class="count-badge" id="countLabel">6 Вузов</span>
+            </div>
+
+            <div class="cards-grid" id="universityGrid">
+                <!-- Cards (same as original) -->
+                <div class="uni-card" data-name="казну kaznu" data-city="almaty" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Research</span>
+                        <img src="https://images.unsplash.com/photo-1562774053-701939374585?w=1200&h=800&fit=crop" alt="KazNU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КазНУ им. аль-Фараби</h3>
+                        <p class="uni-desc">Лидер национального рейтинга. Фундаментальная наука и огромный кампус.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.9</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="кбту kbtu" data-city="almaty" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">IT & Oil</span>
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=800&fit=crop" alt="KBTU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КБТУ</h3>
+                        <p class="uni-desc">Лучший технический вуз для карьеры в нефтегазе и IT-секторе.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.8</div>
+                        <a href="university-info.html?id=kbtu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="назарбаев университет nu" data-city="astana" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">International</span>
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=800&fit=crop" alt="NU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">Nazarbayev University</h3>
+                        <p class="uni-desc">Мировой уровень образования на английском языке.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 5.0</div>
+                        <a href="nazarbaev.jpg" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="сатпаев satbayev" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Engineering</span>
+                        <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&h=800&fit=crop" alt="Satbayev" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">Satbayev University</h3>
+                        <p class="uni-desc">Старейший политех. Инновации в инженерии и архитектуре.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.7</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="юку auezov" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Regional</span>
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1200&h=800&fit=crop" alt="UKU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">ЮКУ им. Ауэзова</h3>
+                        <p class="uni-desc">Крупнейший многопрофильный университет Юга.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.5</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="аграрный" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Bio & Agro</span>
+                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&h=800&fit=crop" alt="Agro" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КазНАИУ</h3>
+                        <p class="uni-desc">Ведущий аграрный исследовательский университет.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.4</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Алматы - Дополнительные университеты -->
+                <div class="uni-card" data-name="казнупу казнпу педагогика" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Education</span>
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&h=800&fit=crop" alt="KazNPU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КазНПУ им. Абая</h3>
+                        <p class="uni-desc">Главное педагогическое учебное заведение. Лидер в подготовке учителей.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.6</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="тураң turan" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Business</span>
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=800&fit=crop" alt="Turan" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">Университет Тұран</h3>
+                        <p class="uni-desc">Крупный частный университет инновационно-предпринимательского направления.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.3</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="хату iitu it" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">IT & Tech</span>
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=800&fit=crop" alt="IITU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">ХАТУ (IITU)</h3>
+                        <p class="uni-desc">Специализируется на IT, кибербезопасности и телекоммуникациях.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.5</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="аэжбу энергетика" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Energy</span>
+                        <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=800&fit=crop" alt="AESU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">АЭжБУ им. Даукеева</h3>
+                        <p class="uni-desc">Готовит специалистов в области энергетики и связи.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.2</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="кимеп kimep бизнес" data-city="almaty" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">International</span>
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1200&h=800&fit=crop" alt="KIMEP" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КИМЭП</h3>
+                        <p class="uni-desc">Бизнес, право и социальные науки. Обучение на английском языке.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.7</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="нархоз narxoz экономика" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Economics</span>
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=800&fit=crop" alt="Narxoz" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">Narxoz University</h3>
+                        <p class="uni-desc">Лидер в области экономики, финансов и менеджмента.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.5</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="alma u бизнес менеджмент" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Business</span>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&h=800&fit=crop" alt="AlmaU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">AlmaU</h3>
+                        <p class="uni-desc">Первое бизнес-высшее учебное заведение в стране. Менеджмент и предпринимательство.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.4</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="абылай хан қазхқжәту тілдер" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Languages</span>
+                        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=800&fit=crop" alt="KAZGUU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КазУМОиМЯ им. Абылай хана</h3>
+                        <p class="uni-desc">Специальности в области иностранных языков и международных отношений.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.3</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="казму медицина" data-city="almaty" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Medicine</span>
+                        <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=800&fit=crop" alt="KazMU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Алматы</span>
+                        <h3 class="uni-title">КазНМУ им. Асфендиярова</h3>
+                        <p class="uni-desc">Ведущее учебное заведение в области медицины. Готовит врачей.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.6</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Астана - Дополнительные университеты -->
+                <div class="uni-card" data-name="еуу гумилев" data-city="astana" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Research</span>
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=800&fit=crop" alt="ENU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">ЕНУ им. Гумилева</h3>
+                        <p class="uni-desc">Лидер национальных рейтингов. Многопрофильный исследовательский университет.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.8</div>
+                        <a href="enu.jpg" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="aitu astana it" data-city="astana" data-top="true">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">IT & Tech</span>
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=800&fit=crop" alt="AITU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">Astana IT University</h3>
+                        <p class="uni-desc">Новый и быстро развивающийся университет в области IT.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.6</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="казгуу kazguu құқық" data-city="astana" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Law & Economics</span>
+                        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=800&fit=crop" alt="KAZGUU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">KAZGUU им. Нарикбаева</h3>
+                        <p class="uni-desc">Лидер в области права, экономики и гуманитарных наук.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.5</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="казату сейфуллин агро" data-city="astana" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Agro & Engineering</span>
+                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&h=800&fit=crop" alt="KATU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">КазАТУ им. Сейфуллина</h3>
+                        <p class="uni-desc">Готовит специалистов в области сельского хозяйства и инженерии.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.3</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="аму астана медицина" data-city="astana" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Medicine</span>
+                        <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=800&fit=crop" alt="AMU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">Астана Медицинский Университет</h3>
+                        <p class="uni-desc">Современное учебное заведение в области медицины. Врачебные специальности.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.4</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="шабыт қазұөу өнер" data-city="astana" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Arts & Creative</span>
+                        <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1200&h=800&fit=crop" alt="KazNAU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Астана</span>
+                        <h3 class="uni-title">КазНАУ (Шабыт)</h3>
+                        <p class="uni-desc">Творческие специальности. Музыка, театр, кино и дизайн.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.5</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Шымкент - Дополнительные университеты -->
+                <div class="uni-card" data-name="оқма медицина шымкент" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Medicine</span>
+                        <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=1200&h=800&fit=crop" alt="SKMA" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">ЮКМА</h3>
+                        <p class="uni-desc">Региональный лидер в области медицины и фармации.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.3</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="оқппу жәнібеков педагогика" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Education</span>
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200&h=800&fit=crop" alt="SKPU" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">ЮКППУ им. Жанибекова</h3>
+                        <p class="uni-desc">Центр подготовки учителей. Педагогические специальности.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.2</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="мирас университет" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Multi-field</span>
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=800&fit=crop" alt="Miras" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">Университет Мирас</h3>
+                        <p class="uni-desc">Многопрофильный частный университет. Современные стандарты образования.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.1</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="silkway халықаралық" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">International</span>
+                        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=800&fit=crop" alt="Silkway" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">Университет Silkway</h3>
+                        <p class="uni-desc">Международные стандарты. Многопрофильные образовательные программы.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.0</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="uni-card" data-name="халықтар достығы" data-city="shymkent" data-top="false">
+                    <div class="card-img-wrapper">
+                        <span class="card-tag">Multi-field</span>
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=800&fit=crop" alt="Friendship" class="card-img">
+                    </div>
+                    <div class="uni-info">
+                        <span class="uni-city">Шымкент</span>
+                        <h3 class="uni-title">Университет Дружбы Народов</h3>
+                        <p class="uni-desc">Многопрофильный университет. Межкультурное сотрудничество.</p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="rating-box"><i class="fas fa-star"></i> 4.0</div>
+                        <a href="university-info.html?id=kaznu" class="btn-arrow"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="view-map" class="view-container">
+        <div class="city-controls">
+            <button class="city-btn active" onclick="flyToCity('almaty', this)">
+                <i class="fas fa-map-marker-alt"></i> Алматы
+            </button>
+            <button class="city-btn" onclick="flyToCity('astana', this)">
+                <i class="fas fa-map-marker-alt"></i> Астана
+            </button>
+            <button class="city-btn" onclick="flyToCity('shymkent', this)">
+                <i class="fas fa-map-marker-alt"></i> Шымкент
+            </button>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="side-panel" id="sidePanel">
+            <div class="panel-header" id="panelImg" style="background-image: url('');">
+                <div class="close-btn" onclick="closePanel()"><i class="fas fa-arrow-left"></i></div>
+            </div>
+            <div class="panel-content">
+                <span class="uni-tag-badge" id="panelTag">Топ вуз</span>
+                <h2 class="uni-title" id="panelTitle">Название</h2>
+                <p class="uni-desc" id="panelDesc">Описание...</p>
+
+                <div class="ai-chat">
+                    <div class="chat-header"><i class="fas fa-robot"></i> AI Консультант</div>
+                    <div class="messages" id="chatMessages">
+                        <div class="msg bot">Привет! Спрашивайте про гранты, стоимость или общежитие в этом вузе.</div>
+                    </div>
+                    <div class="input-area">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ваш вопрос..." onkeypress="handleKey(event)">
+                        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= TAB LOGIC =================
+        function switchTab(tabName) {
+            // Update UI Tabs
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const tabEl = document.getElementById('tab-' + tabName);
+            if (tabEl) tabEl.classList.add('active');
+
+            // Toggle Views
+            const catalogView = document.getElementById('view-catalog');
+            const mapView = document.getElementById('view-map');
+            
+            if (tabName === 'map') {
+                catalogView.classList.remove('active-view');
+                mapView.classList.add('active-view');
+                document.body.classList.add('map-active');
+                
+                // Init map if first time
+                if (!map && typeof DG !== 'undefined') {
+                    initMap();
+                } else if (map) {
+                    try { map.invalidateSize(); } catch(e){}
+                }
+            } else {
+                mapView.classList.remove('active-view');
+                catalogView.classList.add('active-view');
+                document.body.classList.remove('map-active');
+            }
+        }
+
+
+        // ================= CATALOG LOGIC =================
+        const searchInput = document.getElementById('mainSearch');
+        const filterBtns = document.querySelectorAll('.filter-chip');
+        const cards = document.querySelectorAll('.uni-card');
+        const countLabel = document.getElementById('countLabel');
+
+        let currentCity = 'all';
+        let currentSearch = '';
+
+        function updateGrid() {
+            let visible = 0;
+            cards.forEach(card => {
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const city = card.getAttribute('data-city');
+                const isTop = card.getAttribute('data-top') === "true";
+                
+                let cityMatch = (currentCity === 'all') || (city === currentCity);
+                if (currentCity === 'top') cityMatch = isTop;
+
+                const searchMatch = name.includes(currentSearch);
+
+                if (cityMatch && searchMatch) {
+                    card.classList.remove('hidden');
+                    card.style.animation = 'fadeIn 0.5s ease forwards';
+                    visible++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            countLabel.textContent = `${visible} Вузов`;
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value.toLowerCase().trim();
+            updateGrid();
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+
+                btn.classList.add('active');
+
+                // Keep promo style for the TOP button if it's not active
+                const promoBtn = document.querySelector('[data-city="top"]');
+                if (promoBtn && !promoBtn.classList.contains('active')) {
+                    promoBtn.classList.add('promo');
+                } else if (promoBtn) {
+                    promoBtn.classList.remove('promo');
+                }
+
+                currentCity = btn.getAttribute('data-city');
+                updateGrid();
+            });
+        });
+
+        // ================= MAP LOGIC (2GIS) =================
+        const universitiesMapData = [
+            {
+                id: 'kaznu',
+                title: 'КазНУ им. аль-Фараби',
+                coords: [43.2235, 76.9158],
+                city: 'almaty',
+                tag: 'RESEARCH',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/KazNU_Gate.jpg',
+                desc: 'Крупнейший университет страны. Городок в городе с огромной территорией.',
+                ai: { price: 'Стоимость от 1.2 млн тенге.', grants: 'Проходной балл 110+. Грантов много.', dorm: '15 общежитий, мест мало.' }
+            },
+            {
+                id: 'kbtu',
+                title: 'КБТУ',
+                coords: [43.2552, 76.9430],
+                city: 'almaty',
+                tag: 'IT & OIL',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/KBTU_building_Almaty.jpg/1200px-KBTU_building_Almaty.jpg',
+                desc: 'Флагман IT и нефтегазового образования.',
+                ai: { price: '~2.4 млн тг/год.', grants: 'Много спонсорских грантов.', dorm: 'Есть Дом Магистрантов.' }
+            },
+            {
+                id: 'satbayev',
+                title: 'Satbayev University',
+                coords: [43.2370, 76.9310],
+                city: 'almaty',
+                tag: 'ENGINEERING',
+                img: 'https://satbayev.university/resources/img/about/history/history-1.jpg',
+                desc: 'Легендарный Политех.',
+                ai: { price: '~900к - 1млн.', grants: 'Низкий порог на тех. гранты.', dorm: 'Общежития есть.' }
+            },
+            {
+                id: 'nu',
+                title: 'Nazarbayev University',
+                coords: [51.0909, 71.4183],
+                city: 'astana',
+                tag: 'WORLD CLASS',
+                img: 'https://nu.edu.kz/wp-content/uploads/2016/08/campus-1.jpg',
+                desc: 'Университет мирового уровня.',
+                ai: { price: 'Очень дорого, в основном гранты.', grants: 'Full Scholarship.', dorm: 'Комфорт класс.' }
+            },
+            {
+                id: 'uku',
+                title: 'ЮКУ им. Ауэзова',
+                coords: [42.3175, 69.5898],
+                city: 'shymkent',
+                tag: 'REGIONAL',
+                img: 'https://auezov.edu.kz/media/images/slider/1.jpg',
+                desc: 'Главный вуз юга.',
+                ai: { price: 'От 600к.', grants: 'Легко поступить.', dorm: 'Требуют ремонта.' }
+            }
+        ];
+
+        const cityCenters = {
+            almaty: [43.238949, 76.889709],
+            astana: [51.130000, 71.450000],
+            shymkent: [42.3417, 69.5901]
+        };
+
+        let map;
+        let activeData = null;
+
+        function initMap() {
+            DG.then(function () {
+                map = DG.map('map', {
+                    center: cityCenters.almaty,
+                    zoom: 12,
+                    fullscreenControl: false,
+                    zoomControl: true
+                });
+
+                universitiesMapData.forEach(uni => {
+                    const myIcon = DG.icon({
+                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/3595/3595561.png',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40]
+                    });
+
+                    DG.marker(uni.coords, { icon: myIcon }).addTo(map).on('click', function() {
+                        openPanel(uni);
+                    });
+                });
+            });
+        }
+
+        function flyToCity(city, btn) {
+            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            if(map && cityCenters[city]) map.flyTo(cityCenters[city], 12);
+        }
+
+        function openPanel(data) {
+            activeData = data;
+            document.getElementById('panelTitle').innerText = data.title;
+            document.getElementById('panelDesc').innerText = data.desc;
+            document.getElementById('panelTag').innerText = data.tag;
+            document.getElementById('panelImg').style.backgroundImage = 'url("' + data.img + '")';
+            
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = `<div class="msg bot">Здравствуйте! Я AI-ассистент ${escapeHtml(data.title)}. Спрашивайте про цены, гранты и условия.</div>`;
+            
+            document.getElementById('sidePanel').classList.add('open');
+        }
+
+        function closePanel() {
+            document.getElementById('sidePanel').classList.remove('open');
+            activeData = null;
+        }
+
+        function handleKey(e) { if(e.key === 'Enter') sendMessage(); }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const raw = input.value.trim();
+            const text = raw.toLowerCase();
+            const chatBox = document.getElementById('chatMessages');
+
+            if(!raw) return;
+
+            chatBox.innerHTML += `<div class="msg user">${escapeHtml(raw)}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            setTimeout(() => {
+                let answer = "Я пока учусь, спросите про цену или общежитие.";
+                
+                if(activeData) {
+                    const info = activeData.ai;
+                    if(text.includes('цен') || text.includes('стоит') || text.includes('тенге')) answer = info.price;
+                    else if(text.includes('грант') || text.includes('бюджет')) answer = info.grants;
+                    else if(text.includes('общаг') || text.includes('жить')) answer = info.dorm;
+                }
+
+                chatBox.innerHTML += `<div class="msg bot">${escapeHtml(answer)}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 800);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+        }
+
+        // ================= PROFILE LOGIC =================
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                alert('Вы вышли из системы');
+                // Здесь можно добавить логику выхода
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Load user data (можно заменить на реальные данные из localStorage или API)
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            document.getElementById('profileName').textContent = userName;
+            document.getElementById('profileEmail').textContent = userEmail;
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+        
+        // Initial Grid update
+        updateGrid();
+        
+        // Load user profile on page load
+        loadUserProfile();
+    </script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>

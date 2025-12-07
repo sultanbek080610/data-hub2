@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Функция сравнения | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- COMPARE PAGE CONTENT --- */
+        .compare-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Selection Form */
+        .selection-form {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .form-title i {
+            color: var(--accent);
+        }
+        .universities-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.1rem;
+            z-index: 1;
+        }
+        .uni-select {
+            width: 100%;
+            padding: 18px 20px 18px 55px;
+            border-radius: 16px;
+            border: 2px solid #f1f5f9;
+            font-size: 1rem;
+            background: #f8fafc;
+            outline: none;
+            transition: 0.3s;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .uni-select:focus {
+            border-color: var(--primary);
+            background: white;
+        }
+        .btn-compare {
+            background: var(--primary);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        .btn-compare:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+        .btn-compare:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Selected Universities */
+        .selected-universities {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        .selected-uni {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .selected-uni .remove-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .selected-uni .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+            overflow-x: auto;
+        }
+        .comparison-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .comparison-title i {
+            color: var(--accent);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        .comparison-table thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        .comparison-table th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .comparison-table th:first-child {
+            border-radius: 16px 0 0 0;
+        }
+        .comparison-table th:last-child {
+            border-radius: 0 16px 0 0;
+        }
+        .comparison-table th.feature-col {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 800;
+            width: 200px;
+        }
+        .comparison-table tbody tr {
+            border-bottom: 2px solid #f1f5f9;
+            transition: 0.2s;
+        }
+        .comparison-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .comparison-table td {
+            padding: 20px;
+            vertical-align: top;
+        }
+        .comparison-table td.feature-col {
+            font-weight: 700;
+            color: var(--text-main);
+            background: #f8fafc;
+        }
+        .uni-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .uni-logo-small {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .uni-name-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .value-cell {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .value-cell strong {
+            color: var(--text-main);
+            font-weight: 700;
+        }
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .rating-stars i {
+            color: #fbbf24;
+            font-size: 0.9rem;
+        }
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .badge.grant {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+        .badge.paid {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .feature-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            color: white;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .compare-container {
+                padding: 30px 20px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .selection-form {
+                padding: 25px 20px;
+            }
+            .universities-selector {
+                grid-template-columns: 1fr;
+            }
+            .comparison-section {
+                padding: 20px;
+            }
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+            .comparison-table th,
+            .comparison-table td {
+                padding: 12px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item active">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="compare-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Сравнение университетов</h1>
+            <p>Выберите несколько университетов и сравните их по различным параметрам</p>
+        </div>
+
+        <!-- Selection Form -->
+        <div class="selection-form">
+            <h2 class="form-title">
+                <i class="fas fa-search"></i>
+                Выбор университетов
+            </h2>
+            <div class="universities-selector">
+                <div class="select-wrapper">
+                    <i class="fas fa-university"></i>
+                    <select class="uni-select" id="uniSelect1">
+                        <option value="">Выберите университет...</option>
+                        <option value="kaznu">КазНУ им. аль-Фараби</option>
+                        <option value="kbtu">КБТУ</option>
+                        <option value="nu">Назарбаев Университет</option>
+                        <option value="kimep">КИМЭП</option>
+                        <option value="sdu">СДУ</option>
+                        <option value="kbtu">КазНТУ</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <i class="fas fa-university"></i>
+                    <select class="uni-select" id="uniSelect2">
+                        <option value="">Выберите университет...</option>
+                        <option value="kaznu">КазНУ им. аль-Фараби</option>
+                        <option value="kbtu">КБТУ</option>
+                        <option value="nu">Назарбаев Университет</option>
+                        <option value="kimep">КИМЭП</option>
+                        <option value="sdu">СДУ</option>
+                        <option value="kbtu">КазНТУ</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <i class="fas fa-university"></i>
+                    <select class="uni-select" id="uniSelect3">
+                        <option value="">Выберите университет...</option>
+                        <option value="kaznu">КазНУ им. аль-Фараби</option>
+                        <option value="kbtu">КБТУ</option>
+                        <option value="nu">Назарбаев Университет</option>
+                        <option value="kimep">КИМЭП</option>
+                        <option value="sdu">СДУ</option>
+                        <option value="kbtu">КазНТУ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="selected-universities" id="selectedUnis"></div>
+            <button class="btn-compare" id="compareBtn" onclick="compareUniversities()">
+                <i class="fas fa-balance-scale"></i>
+                Сравнение
+            </button>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-section" id="comparisonSection" style="display: none;">
+            <h2 class="comparison-title">
+                <i class="fas fa-table"></i>
+                Результаты сравнения
+            </h2>
+            <div style="overflow-x: auto;">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th class="feature-col">Параметр</th>
+                            <th id="uni1Header"></th>
+                            <th id="uni2Header"></th>
+                            <th id="uni3Header"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody">
+                        <!-- Content will be dynamically inserted -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="comparison-section" id="emptyState">
+            <div class="empty-state">
+                <i class="fas fa-balance-scale"></i>
+                <h3>Выберите университеты</h3>
+                <p>Для сравнения выберите минимум 2 университета из формы выше</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // University data
+        const universityData = {
+            'kaznu': {
+                name: 'КазНУ им. аль-Фараби',
+                programs: '150+ программ',
+                tuition: '450 000 ₸/год',
+                campus: 'Большой кампус, 200+ га',
+                qsRanking: '175',
+                infrastructure: 'Современные лаборатории, библиотека, спортивный комплекс'
+            },
+            'kbtu': {
+                name: 'КБТУ',
+                programs: '80+ программ',
+                tuition: '550 000 ₸/год',
+                campus: 'Средний кампус, 50 га',
+                qsRanking: '401-450',
+                infrastructure: 'Технологические лаборатории, инновационный центр'
+            },
+            'nu': {
+                name: 'Назарбаев Университет',
+                programs: '60+ программ',
+                tuition: 'Бесплатно (грант)',
+                campus: 'Современный кампус, 100 га',
+                qsRanking: '150',
+                infrastructure: 'Элитная инфраструктура, исследовательские центры'
+            },
+            'kimep': {
+                name: 'КИМЭП',
+                programs: '40+ программ',
+                tuition: '1 200 000 ₸/год',
+                campus: 'Компактный кампус, 30 га',
+                qsRanking: '601-650',
+                infrastructure: 'Обучение на английском языке, международные стандарты'
+            },
+            'sdu': {
+                name: 'СДУ',
+                programs: '70+ программ',
+                tuition: '500 000 ₸/год',
+                campus: 'Средний кампус, 40 га',
+                qsRanking: '501-550',
+                infrastructure: 'Современные аудитории, цифровые технологии'
+            },
+            'kbtu': {
+                name: 'КазНТУ',
+                programs: '120+ программ',
+                tuition: '400 000 ₸/год',
+                campus: 'Большой кампус, 150 га',
+                qsRanking: '351-400',
+                infrastructure: 'Технические лаборатории, инженерный центр'
+            }
+        };
+
+        let selectedUniversities = [];
+
+        // Handle select changes
+        document.querySelectorAll('.uni-select').forEach((select, index) => {
+            select.addEventListener('change', function() {
+                updateSelectedUniversities();
+            });
+        });
+
+        function updateSelectedUniversities() {
+            selectedUniversities = [];
+            document.querySelectorAll('.uni-select').forEach(select => {
+                if (select.value && universityData[select.value]) {
+                    selectedUniversities.push(select.value);
+                }
+            });
+            
+            const selectedUnisDiv = document.getElementById('selectedUnis');
+            selectedUnisDiv.innerHTML = '';
+            
+            selectedUniversities.forEach(uniId => {
+                const uni = universityData[uniId];
+                const badge = document.createElement('div');
+                badge.className = 'selected-uni';
+                badge.innerHTML = `
+                    ${uni.name}
+                    <button class="remove-btn" onclick="removeUniversity('${uniId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                selectedUnisDiv.appendChild(badge);
+            });
+
+            document.getElementById('compareBtn').disabled = selectedUniversities.length < 2;
+        }
+
+        function removeUniversity(uniId) {
+            document.querySelectorAll('.uni-select').forEach(select => {
+                if (select.value === uniId) {
+                    select.value = '';
+                }
+            });
+            updateSelectedUniversities();
+        }
+
+        function compareUniversities() {
+            if (selectedUniversities.length < 2) {
+                alert('Для сравнения выберите минимум 2 университета');
+                return;
+            }
+
+            const comparisonSection = document.getElementById('comparisonSection');
+            const emptyState = document.getElementById('emptyState');
+            const comparisonBody = document.getElementById('comparisonBody');
+            
+            comparisonSection.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            // Update headers
+            selectedUniversities.forEach((uniId, index) => {
+                const uni = universityData[uniId];
+                const headerId = `uni${index + 1}Header`;
+                const header = document.getElementById(headerId);
+                if (header) {
+                    header.innerHTML = `
+                        <div class="uni-name-cell">
+                            <div class="uni-logo-small">${uni.name.charAt(0)}</div>
+                            <div class="uni-name-text">${uni.name}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            // Hide unused headers
+            for (let i = selectedUniversities.length + 1; i <= 3; i++) {
+                const header = document.getElementById(`uni${i}Header`);
+                if (header) {
+                    header.style.display = 'none';
+                }
+            }
+
+            // Build comparison rows
+            comparisonBody.innerHTML = `
+                <tr>
+                    <td class="feature-col">
+                        <i class="fas fa-graduation-cap feature-icon"></i>
+                        Программы
+                    </td>
+                    ${selectedUniversities.map(uniId => 
+                        `<td class="value-cell"><strong>${universityData[uniId].programs}</strong></td>`
+                    ).join('')}
+                </tr>
+                <tr>
+                    <td class="feature-col">
+                        <i class="fas fa-dollar-sign feature-icon"></i>
+                        Стоимость обучения
+                    </td>
+                    ${selectedUniversities.map(uniId => {
+                        const tuition = universityData[uniId].tuition;
+                        const isGrant = tuition.includes('грант') || tuition.includes('Бесплатно');
+                        return `<td class="value-cell">
+                            <span class="badge ${isGrant ? 'grant' : 'paid'}">${tuition}</span>
+                        </td>`;
+                    }).join('')}
+                </tr>
+                <tr>
+                    <td class="feature-col">
+                        <i class="fas fa-building feature-icon"></i>
+                        Кампус
+                    </td>
+                    ${selectedUniversities.map(uniId => 
+                        `<td class="value-cell">${universityData[uniId].campus}</td>`
+                    ).join('')}
+                </tr>
+                <tr>
+                    <td class="feature-col">
+                        <i class="fas fa-trophy feature-icon"></i>
+                        QS рейтинг
+                    </td>
+                    ${selectedUniversities.map(uniId => 
+                        `<td class="value-cell">
+                            <strong>${universityData[uniId].qsRanking}</strong>
+                            <div class="rating-stars">
+                                ${'<i class="fas fa-star"></i>'.repeat(5)}
+                            </div>
+                        </td>`
+                    ).join('')}
+                </tr>
+                <tr>
+                    <td class="feature-col">
+                        <i class="fas fa-cogs feature-icon"></i>
+                        Инфраструктура
+                    </td>
+                    ${selectedUniversities.map(uniId => 
+                        `<td class="value-cell">${universityData[uniId].infrastructure}</td>`
+                    ).join('')}
+                </tr>
+            `;
+
+            // Show all headers
+            for (let i = 1; i <= 3; i++) {
+                const header = document.getElementById(`uni${i}Header`);
+                if (header && i <= selectedUniversities.length) {
+                    header.style.display = 'table-cell';
+                } else if (header) {
+                    header.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize
+        document.getElementById('compareBtn').disabled = true;
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                alert('Вы вышли из системы');
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            const profileNameEl = document.getElementById('profileName');
+            if (profileNameEl) {
+                profileNameEl.innerHTML = `<i class="fas fa-user"></i><span>${userName}</span>`;
+            }
+            
+            const profileEmailEl = document.getElementById('profileEmail');
+            if (profileEmailEl) {
+                profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i><span>${userEmail}</span>`;
+            }
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

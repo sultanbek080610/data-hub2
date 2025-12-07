@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Академические программы | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- PROGRAMS PAGE CONTENT --- */
+        .programs-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .search-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-input-wrapper i {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 18px 20px 18px 60px;
+            border-radius: 20px;
+            border: 2px solid #f1f5f9;
+            font-size: 1.1rem;
+            background: #f8fafc;
+            outline: none;
+            transition: 0.3s;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            background: white;
+        }
+        .filter-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .filter-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .filter-chip.active {
+            background: var(--text-main);
+            color: white;
+            border-color: var(--text-main);
+        }
+
+        /* Faculty List */
+        .faculty-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .faculty-item {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .faculty-item:hover {
+            box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.2);
+        }
+        .faculty-header {
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .faculty-header:hover {
+            background: #f8fafc;
+        }
+        .faculty-header.active {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(163, 230, 53, 0.05) 100%);
+        }
+        .faculty-info {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-grow: 1;
+        }
+        .faculty-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        .faculty-details h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .faculty-details p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .faculty-count {
+            background: #dbeafe;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 20px;
+        }
+        .faculty-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .faculty-header.active .faculty-toggle {
+            background: var(--primary);
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        /* Programs Grid */
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 30px;
+            background: #f8fafc;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, padding 0.5s ease;
+        }
+        .programs-grid.open {
+            max-height: 5000px;
+            padding: 30px;
+        }
+        .program-card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            border: 2px solid #f1f5f9;
+            transition: all 0.4s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .program-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary);
+        }
+        .program-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .program-badge.grant {
+            background: var(--primary);
+            color: white;
+        }
+        .program-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        .program-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        .program-code {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .program-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        .program-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f1f5f9;
+        }
+        .program-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .program-detail-item i {
+            color: var(--primary);
+        }
+        .btn-details {
+            background: var(--text-main);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-details:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Program Modal */
+        .program-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .program-modal.open {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-xl);
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .program-modal.open .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 40px 40px 30px;
+            border-bottom: 2px solid #f1f5f9;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            transition: 0.3s;
+        }
+        .modal-close:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .modal-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .modal-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .modal-body {
+            padding: 40px;
+        }
+        .modal-section {
+            margin-bottom: 35px;
+        }
+        .modal-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-section h3 i {
+            color: var(--accent);
+        }
+        .modal-section p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+        }
+        .modal-list {
+            list-style: none;
+            padding: 0;
+        }
+        .modal-list li {
+            color: var(--text-muted);
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .modal-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .universities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .university-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        .university-item:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+        }
+        .university-item-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .university-item-info {
+            flex-grow: 1;
+        }
+        .university-item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        .university-item-city {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .programs-container {
+                padding: 30px 20px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .faculty-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .faculty-info {
+                width: 100%;
+            }
+            .programs-grid {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            .programs-grid.open {
+                padding: 20px;
+            }
+            .modal-content {
+                max-width: 100%;
+            }
+            .modal-header,
+            .modal-body {
+                padding: 25px 20px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item active">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="programs-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Академические программы</h1>
+            <p>Все академические программы и специальности, предлагаемые нашим университетом</p>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-filter-section">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" id="programSearch" placeholder="Поиск программы...">
+            </div>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="all">Все</button>
+                <button class="filter-chip" data-filter="bachelor">Бакалавриат</button>
+                <button class="filter-chip" data-filter="master">Магистратура</button>
+                <button class="filter-chip" data-filter="phd">Докторантура</button>
+                <button class="filter-chip" data-filter="grant">С грантом</button>
+            </div>
+        </div>
+
+        <!-- Faculty List -->
+        <div class="faculty-list" id="facultyList">
+            <!-- Faculty 1: Engineering -->
+            <div class="faculty-item" data-faculty="engineering">
+                <div class="faculty-header" onclick="toggleFaculty(this)">
+                    <div class="faculty-info">
+                        <div class="faculty-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="faculty-details">
+                            <h2>Факультет инженерии</h2>
+                            <p>Современные технологии и инженерные решения</p>
+                        </div>
+                    </div>
+                    <span class="faculty-count">8 программ</span>
+                    <div class="faculty-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card" data-level="bachelor" data-grant="true">
+                        <span class="program-badge grant">Грант</span>
+                        <div class="program-icon"><i class="fas fa-laptop-code"></i></div>
+                        <h3 class="program-title">Компьютерная инженерия</h3>
+                        <span class="program-code">6B06101</span>
+                        <p class="program-desc">Изучение программного обеспечения, веб-разработки, мобильных приложений и технологий AI.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>120 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'computer-engineering')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="bachelor" data-grant="true">
+                        <span class="program-badge grant">Грант</span>
+                        <div class="program-icon"><i class="fas fa-microchip"></i></div>
+                        <h3 class="program-title">Электроника и автоматика</h3>
+                        <span class="program-code">6B07101</span>
+                        <p class="program-desc">Изучение электронных систем, робототехники и автоматизации.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>80 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'electronics')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="master">
+                        <div class="program-icon"><i class="fas fa-network-wired"></i></div>
+                        <h3 class="program-title">Информационные системы</h3>
+                        <span class="program-code">7M06101</span>
+                        <p class="program-desc">Проектирование и разработка корпоративных информационных систем и баз данных.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>2 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Магистратура</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>30 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'information-systems')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty 2: Business -->
+            <div class="faculty-item" data-faculty="business">
+                <div class="faculty-header" onclick="toggleFaculty(this)">
+                    <div class="faculty-info">
+                        <div class="faculty-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="faculty-details">
+                            <h2>Факультет бизнеса и экономики</h2>
+                            <p>Бизнес-управление, экономика и финансы</p>
+                        </div>
+                    </div>
+                    <span class="faculty-count">6 программ</span>
+                    <div class="faculty-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card" data-level="bachelor" data-grant="true">
+                        <span class="program-badge grant">Грант</span>
+                        <div class="program-icon"><i class="fas fa-chart-line"></i></div>
+                        <h3 class="program-title">Экономика</h3>
+                        <span class="program-code">6B04101</span>
+                        <p class="program-desc">Изучение макро и микроэкономики, финансовых рынков и экономической политики.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>100 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'economics')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="bachelor">
+                        <div class="program-icon"><i class="fas fa-handshake"></i></div>
+                        <h3 class="program-title">Маркетинг</h3>
+                        <span class="program-code">6B04102</span>
+                        <p class="program-desc">Цифровой маркетинг, бренд-менеджмент и стратегии продаж.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>60 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'marketing')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="master">
+                        <div class="program-icon"><i class="fas fa-user-tie"></i></div>
+                        <h3 class="program-title">MBA</h3>
+                        <span class="program-code">7M04101</span>
+                        <p class="program-desc">Магистр бизнес-управления. Программа для профессиональных менеджеров.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>2 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Магистратура</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>25 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'mba')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty 3: Medicine -->
+            <div class="faculty-item" data-faculty="medicine">
+                <div class="faculty-header" onclick="toggleFaculty(this)">
+                    <div class="faculty-info">
+                        <div class="faculty-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="faculty-details">
+                            <h2>Медицинский факультет</h2>
+                            <p>Здравоохранение и медицинские исследования</p>
+                        </div>
+                    </div>
+                    <span class="faculty-count">5 программ</span>
+                    <div class="faculty-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card" data-level="bachelor" data-grant="true">
+                        <span class="program-badge grant">Грант</span>
+                        <div class="program-icon"><i class="fas fa-user-md"></i></div>
+                        <h3 class="program-title">Общая медицина</h3>
+                        <span class="program-code">6B10101</span>
+                        <p class="program-desc">Врачебная специальность. Клиническая практика и исследования.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>5 лет</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>150 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'general-medicine')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="bachelor">
+                        <div class="program-icon"><i class="fas fa-pills"></i></div>
+                        <h3 class="program-title">Фармация</h3>
+                        <span class="program-code">6B10102</span>
+                        <p class="program-desc">Изготовление лекарств, контроль качества и фармацевтические технологии.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>50 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'pharmacy')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty 4: Humanities -->
+            <div class="faculty-item" data-faculty="humanities">
+                <div class="faculty-header" onclick="toggleFaculty(this)">
+                    <div class="faculty-info">
+                        <div class="faculty-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="faculty-details">
+                            <h2>Факультет гуманитарных наук</h2>
+                            <p>Языки, литература, история и культура</p>
+                        </div>
+                    </div>
+                    <span class="faculty-count">7 программ</span>
+                    <div class="faculty-toggle">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card" data-level="bachelor" data-grant="true">
+                        <span class="program-badge grant">Грант</span>
+                        <div class="program-icon"><i class="fas fa-language"></i></div>
+                        <h3 class="program-title">Казахская филология</h3>
+                        <span class="program-code">6B02301</span>
+                        <p class="program-desc">Изучение казахского языка и литературы, переводоведение и языкознание.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>80 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'kazakh-philology')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="program-card" data-level="bachelor">
+                        <div class="program-icon"><i class="fas fa-globe"></i></div>
+                        <h3 class="program-title">Международные отношения</h3>
+                        <span class="program-code">6B03101</span>
+                        <p class="program-desc">Изучение дипломатии, международной политики и глобальных процессов.</p>
+                        <div class="program-details">
+                            <div class="program-detail-item">
+                                <i class="fas fa-clock"></i>
+                                <span>4 года</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Бакалавриат</span>
+                            </div>
+                            <div class="program-detail-item">
+                                <i class="fas fa-users"></i>
+                                <span>60 мест</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn-details" onclick="openProgramModal(event, 'international-relations')">
+                            Подробнее <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Program Modal -->
+    <div class="program-modal" id="programModal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeProgramModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="modal-title" id="modalTitle">Название программы</h2>
+                <p class="modal-subtitle" id="modalSubtitle">Код программы</p>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Program data
+        const programData = {
+            'computer-engineering': {
+                title: 'Компьютерная инженерия',
+                code: '6B06101',
+                description: 'Программа компьютерной инженерии готовит специалистов в области современных информационных технологий.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '120 мест',
+                grant: true,
+                universities: [
+                    { name: 'КазНУ им. аль-Фараби', city: 'Алматы', id: 'kaznu' },
+                    { name: 'КБТУ', city: 'Алматы', id: 'kbtu' },
+                    { name: 'Satbayev University', city: 'Алматы', id: 'satbayev' },
+                    { name: 'ХАТУ (IITU)', city: 'Алматы', id: 'iitu' },
+                    { name: 'Astana IT University', city: 'Астана', id: 'aitu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа даёт студентам глубокие знания в области программного обеспечения, веб-разработки, мобильных приложений, 
+                        искусственного интеллекта и анализа данных.</p>
+                    </div>
+                    <div class="modal-section">
+                        <h3><i class="fas fa-book"></i> Основные предметы</h3>
+                        <ul class="modal-list">
+                            <li>Основы программирования (Python, Java, C++)</li>
+                            <li>Структуры данных и алгоритмы</li>
+                            <li>Веб-разработка (HTML, CSS, JavaScript, React)</li>
+                            <li>Разработка мобильных приложений</li>
+                            <li>Искусственный интеллект и машинное обучение</li>
+                            <li>Кибербезопасность</li>
+                            <li>Облачные технологии</li>
+                        </ul>
+                    </div>
+                    <div class="modal-section">
+                        <h3><i class="fas fa-briefcase"></i> Карьерные возможности</h3>
+                        <ul class="modal-list">
+                            <li>Инженер по программному обеспечению</li>
+                            <li>Веб-разработчик</li>
+                            <li>Разработчик мобильных приложений</li>
+                            <li>AI/ML инженер</li>
+                            <li>Специалист по кибербезопасности</li>
+                            <li>Специалист по анализу данных</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'electronics': {
+                title: 'Электроника и автоматика',
+                code: '6B07101',
+                description: 'Специальность в области электронных систем и робототехники.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '80 мест',
+                grant: true,
+                universities: [
+                    { name: 'Satbayev University', city: 'Алматы', id: 'satbayev' },
+                    { name: 'КБТУ', city: 'Алматы', id: 'kbtu' },
+                    { name: 'АЭжБУ им. Даукеева', city: 'Алматы', id: 'aesu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа готовит специалистов по проектированию электронных устройств, робототехнике и 
+                        разработке систем автоматизации.</p>
+                    </div>
+                    <div class="modal-section">
+                        <h3><i class="fas fa-book"></i> Основные предметы</h3>
+                        <ul class="modal-list">
+                            <li>Основы электроники</li>
+                            <li>Микроконтроллеры и микропроцессоры</li>
+                            <li>Робототехника</li>
+                            <li>Системы автоматизации</li>
+                            <li>Обработка сигналов</li>
+                            <li>Электромагнитная совместимость</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'economics': {
+                title: 'Экономика',
+                code: '6B04101',
+                description: 'Изучение экономической теории и практики.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '100 мест',
+                grant: true,
+                universities: [
+                    { name: 'КазНУ им. аль-Фараби', city: 'Алматы', id: 'kaznu' },
+                    { name: 'Narxoz University', city: 'Алматы', id: 'narxoz' },
+                    { name: 'КИМЭП', city: 'Алматы', id: 'kimep' },
+                    { name: 'KAZGUU им. Нарикбаева', city: 'Астана', id: 'kazguu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа экономики даёт знания в области макро и микроэкономики, финансовых рынков, 
+                        экономической политики и бизнес-анализа.</p>
+                    </div>
+                `
+            },
+            'marketing': {
+                title: 'Маркетинг',
+                code: '6B04102',
+                description: 'Современные маркетинговые стратегии и техники.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '60 мест',
+                grant: false,
+                universities: [
+                    { name: 'AlmaU', city: 'Алматы', id: 'almau' },
+                    { name: 'Narxoz University', city: 'Алматы', id: 'narxoz' },
+                    { name: 'Университет Тұран', city: 'Алматы', id: 'turan' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа маркетинга готовит специалистов в области цифрового маркетинга, бренд-менеджмента, 
+                        стратегий продаж и исследования рынка.</p>
+                    </div>
+                `
+            },
+            'mba': {
+                title: 'MBA - Магистр бизнес-управления',
+                code: '7M04101',
+                description: 'Программа для профессиональных менеджеров.',
+                duration: '2 года',
+                level: 'Магистратура',
+                seats: '25 мест',
+                grant: false,
+                universities: [
+                    { name: 'КИМЭП', city: 'Алматы', id: 'kimep' },
+                    { name: 'AlmaU', city: 'Алматы', id: 'almau' },
+                    { name: 'Narxoz University', city: 'Алматы', id: 'narxoz' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа MBA даёт глубокие знания в области бизнес-управления, стратегического планирования, финансового менеджмента 
+                        и лидерства.</p>
+                    </div>
+                `
+            },
+            'general-medicine': {
+                title: 'Общая медицина',
+                code: '6B10101',
+                description: 'Врачебная специальность.',
+                duration: '5 лет',
+                level: 'Бакалавриат',
+                seats: '150 мест',
+                grant: true,
+                universities: [
+                    { name: 'КазНМУ им. Асфендиярова', city: 'Алматы', id: 'kazmu' },
+                    { name: 'Астана Медицинский Университет', city: 'Астана', id: 'amu' },
+                    { name: 'ЮКМА', city: 'Шымкент', id: 'skma' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа общей медицины готовит врачей. Студенты получают медицинские знания через 
+                        клиническую практику и исследования.</p>
+                    </div>
+                `
+            },
+            'pharmacy': {
+                title: 'Фармация',
+                code: '6B10102',
+                description: 'Изготовление лекарств и контроль качества.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '50 мест',
+                grant: false,
+                universities: [
+                    { name: 'КазНМУ им. Асфендиярова', city: 'Алматы', id: 'kazmu' },
+                    { name: 'ЮКМА', city: 'Шымкент', id: 'skma' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа фармации готовит специалистов в области изготовления лекарств, контроля качества и 
+                        фармацевтических технологий.</p>
+                    </div>
+                `
+            },
+            'kazakh-philology': {
+                title: 'Казахская филология',
+                code: '6B02301',
+                description: 'Изучение казахского языка и литературы.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '80 мест',
+                grant: true,
+                universities: [
+                    { name: 'КазНУ им. аль-Фараби', city: 'Алматы', id: 'kaznu' },
+                    { name: 'КазНПУ им. Абая', city: 'Алматы', id: 'kaznpu' },
+                    { name: 'ЕНУ им. Гумилева', city: 'Астана', id: 'enu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа казахской филологии готовит специалистов в области изучения казахского языка и литературы, переводоведения 
+                        и языкознания.</p>
+                    </div>
+                `
+            },
+            'international-relations': {
+                title: 'Международные отношения',
+                code: '6B03101',
+                description: 'Дипломатия и международная политика.',
+                duration: '4 года',
+                level: 'Бакалавриат',
+                seats: '60 мест',
+                grant: false,
+                universities: [
+                    { name: 'КазУМОиМЯ им. Абылай хана', city: 'Алматы', id: 'kazumo' },
+                    { name: 'КИМЭП', city: 'Алматы', id: 'kimep' },
+                    { name: 'KAZGUU им. Нарикбаева', city: 'Астана', id: 'kazguu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа международных отношений готовит специалистов в области дипломатии, международной политики, 
+                        глобальных процессов и межкультурной коммуникации.</p>
+                    </div>
+                `
+            },
+            'information-systems': {
+                title: 'Информационные системы',
+                code: '7M06101',
+                description: 'Корпоративные информационные системы.',
+                duration: '2 года',
+                level: 'Магистратура',
+                seats: '30 мест',
+                grant: false,
+                universities: [
+                    { name: 'КазНУ им. аль-Фараби', city: 'Алматы', id: 'kaznu' },
+                    { name: 'КБТУ', city: 'Алматы', id: 'kbtu' },
+                    { name: 'Astana IT University', city: 'Астана', id: 'aitu' }
+                ],
+                content: `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                        <p>Программа информационных систем готовит магистров в области проектирования и разработки корпоративных информационных систем и 
+                        баз данных.</p>
+                    </div>
+                `
+            }
+        };
+
+        // Toggle faculty
+        function toggleFaculty(header) {
+            const facultyItem = header.closest('.faculty-item');
+            const programsGrid = facultyItem.querySelector('.programs-grid');
+            const isOpen = programsGrid.classList.contains('open');
+            
+            // Close all other faculties
+            document.querySelectorAll('.programs-grid.open').forEach(grid => {
+                if (grid !== programsGrid) {
+                    grid.classList.remove('open');
+                    grid.closest('.faculty-item').querySelector('.faculty-header').classList.remove('active');
+                }
+            });
+            
+            // Toggle current faculty
+            if (isOpen) {
+                programsGrid.classList.remove('open');
+                header.classList.remove('active');
+            } else {
+                programsGrid.classList.add('open');
+                header.classList.add('active');
+            }
+        }
+
+        // Open program modal
+        function openProgramModal(event, programId) {
+            event.preventDefault();
+            const program = programData[programId];
+            if (!program) return;
+            
+            document.getElementById('modalTitle').textContent = program.title;
+            document.getElementById('modalSubtitle').textContent = program.code;
+            
+            // Build universities section HTML
+            let universitiesHTML = '';
+            if (program.universities && program.universities.length > 0) {
+                universitiesHTML = `
+                    <div class="modal-section">
+                        <h3><i class="fas fa-university"></i> Университеты, где доступна программа</h3>
+                        <p>Данная программа доступна в следующих университетах Казахстана:</p>
+                        <div class="universities-list">
+                            ${program.universities.map(uni => `
+                                <a href="university-info.html?id=${uni.id}" class="university-item">
+                                    <div class="university-item-icon">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                    <div class="university-item-info">
+                                        <div class="university-item-name">${uni.name}</div>
+                                        <div class="university-item-city">${uni.city}</div>
+                                    </div>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Combine content with universities section
+            document.getElementById('modalBody').innerHTML = program.content + universitiesHTML;
+            
+            const modal = document.getElementById('programModal');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close program modal
+        function closeProgramModal() {
+            const modal = document.getElementById('programModal');
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on backdrop click
+        function closeModalOnBackdrop(event) {
+            if (event.target.id === 'programModal') {
+                closeProgramModal();
+            }
+        }
+
+        // Search functionality
+        document.getElementById('programSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.program-card').forEach(card => {
+                const title = card.querySelector('.program-title').textContent.toLowerCase();
+                const desc = card.querySelector('.program-desc').textContent.toLowerCase();
+                const code = card.querySelector('.program-code').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || desc.includes(searchTerm) || code.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                document.querySelectorAll('.program-card').forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'flex';
+                    } else if (filter === 'grant' && card.dataset.grant === 'true') {
+                        card.style.display = 'flex';
+                    } else if (card.dataset.level === filter) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeProgramModal();
+            }
+        });
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                alert('Вы вышли из системы');
+                document.getElementById('profileDropdown').classList.remove('open');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            
+            const profileNameEl = document.getElementById('profileName');
+            if (profileNameEl) {
+                profileNameEl.innerHTML = `<i class="fas fa-user"></i><span>${userName}</span>`;
+            }
+            
+            const profileEmailEl = document.getElementById('profileEmail');
+            if (profileEmailEl) {
+                profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i><span>${userEmail}</span>`;
+            }
+            
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = userInitials || '<i class="fas fa-user"></i>';
+            }
+        }
+
+        loadUserProfile();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>

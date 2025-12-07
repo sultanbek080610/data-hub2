@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0d0d0d;
+    color: #fff;
+}
+
+header {
+    background: #1a1a1a;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 2px solid #333;
+}
+
+main {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.menu {
+    width: 260px;
+    background: #1b1b1b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.menu button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #2a2a2a;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.menu button:hover {
+    background: #444;
+}
+
+.content-box {
+    flex: 1;
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}

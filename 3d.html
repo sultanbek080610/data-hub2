@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D-тур | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://maps.api.2gis.ru/2.0/loader.js?pkg=full"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-back {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover { 
+            background: var(--primary); 
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transform: translateX(-3px);
+        }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- 3D TOUR PAGE --- */
+        .tour-container {
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Page Header */
+        .tour-header {
+            padding: 60px 40px 40px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(163, 230, 53, 0.05));
+        }
+        .tour-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tour-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Main Content Layout */
+        .tour-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            padding: 40px;
+            flex: 1;
+        }
+
+        /* 3D Viewer Section */
+        .tour-viewer {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+            overflow: hidden;
+            position: relative;
+            min-height: 600px;
+        }
+        .viewer-header {
+            padding: 25px 30px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .viewer-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .viewer-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .viewer-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .viewer-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        .viewer-content {
+            position: relative;
+            height: calc(100% - 80px);
+            min-height: 500px;
+            background: #1a1a1a;
+        }
+        .viewer-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .viewer-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
+        }
+        .viewer-placeholder i {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .viewer-placeholder h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .viewer-placeholder p {
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Location Navigation */
+        .location-nav {
+            display: flex;
+            gap: 15px;
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .location-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .location-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .location-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Sidebar */
+        .tour-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Location Info Card */
+        .location-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .location-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .location-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+        .location-card-title {
+            flex-grow: 1;
+        }
+        .location-card-title h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .location-card-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .location-description {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        .location-features {
+            list-style: none;
+            padding: 0;
+        }
+        .location-features li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .location-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Map Card */
+        .map-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+            overflow: hidden;
+            height: 400px;
+        }
+        .map-card-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .map-card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .map-container {
+            width: 100%;
+            height: calc(100% - 60px);
+        }
+        #universityMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .tour-content {
+                grid-template-columns: 1fr;
+            }
+            .tour-sidebar {
+                order: -1;
+            }
+        }
+        @media (max-width: 768px) {
+            .tour-header {
+                padding: 40px 20px 30px;
+            }
+            .tour-header h1 {
+                font-size: 2.2rem;
+            }
+            .tour-content {
+                padding: 20px;
+            }
+            .viewer-content {
+                min-height: 400px;
+            }
+            .location-nav {
+                padding: 15px 20px;
+            }
+            .location-btn {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item active">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="glavni.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> На главную
+            </a>
+            <div class="user-profile">
+                <div class="profile-avatar" onclick="toggleProfile()">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-header" onclick="window.location.href='profile.html'">
+                        <div class="profile-name" id="profileName">
+                            <i class="fas fa-user"></i>
+                            <span>Пользователь</span>
+                        </div>
+                        <div class="profile-email" id="profileEmail">
+                            <i class="fas fa-envelope"></i>
+                            <span>user@example.com</span>
+                        </div>
+                    </div>
+                    <div class="profile-menu">
+                        <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Мой профиль</span>
+                        </a>
+                        <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                            <i class="fas fa-bookmark"></i>
+                            <span>Избранное</span>
+                        </a>
+                        <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                            <i class="fas fa-cog"></i>
+                            <span>Настройки</span>
+                        </a>
+                        <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Помощь</span>
+                        </a>
+                        <div class="profile-menu-item logout" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Выйти</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="tour-container">
+        <!-- Page Header -->
+        <div class="tour-header">
+            <h1>3D-тур по кампусу</h1>
+            <p>Виртуальное путешествие по университетскому кампусу. Исследуйте аудитории, лаборатории, библиотеки и общежития</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="tour-content">
+            <!-- 3D Viewer -->
+            <div class="tour-viewer">
+                <div class="viewer-header">
+                    <div class="viewer-title">
+                        <i class="fas fa-cube"></i>
+                        <span id="currentLocationName">Главный корпус</span>
+                    </div>
+                    <div class="viewer-controls">
+                        <button class="viewer-btn" onclick="toggleFullscreen()" title="Полноэкранный режим">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="viewer-btn" onclick="resetView()" title="Сбросить вид">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="viewer-content" id="viewerContent">
+                    <!-- 3D Viewer will be embedded here -->
+                    <div class="viewer-placeholder">
+                        <i class="fas fa-cube"></i>
+                        <h3>3D-тур</h3>
+                        <p>Выберите локацию для просмотра</p>
+                    </div>
+                    <!-- For real 3D tour, you can embed services like Matterport, Google Street View, or custom WebGL viewer -->
+                    <iframe class="viewer-iframe" id="tourIframe" style="display: none;" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                </div>
+                <div class="location-nav">
+                    <button class="location-btn active" onclick="switchLocation('main-building', this)">
+                        <i class="fas fa-building"></i> Главный корпус
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('library', this)">
+                        <i class="fas fa-book"></i> Библиотека
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('laboratory', this)">
+                        <i class="fas fa-flask"></i> Лаборатории
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('classroom', this)">
+                        <i class="fas fa-chalkboard-teacher"></i> Аудитории
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('dormitory', this)">
+                        <i class="fas fa-bed"></i> Общежитие
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('sports', this)">
+                        <i class="fas fa-dumbbell"></i> Спорткомплекс
+                    </button>
+                    <button class="location-btn" onclick="switchLocation('cafeteria', this)">
+                        <i class="fas fa-utensils"></i> Столовая
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="tour-sidebar">
+                <!-- Location Info -->
+                <div class="location-card" id="locationCard">
+                    <div class="location-card-header">
+                        <div class="location-icon">
+                            <i class="fas fa-building" id="locationIcon"></i>
+                        </div>
+                        <div class="location-card-title">
+                            <h2 id="locationTitle">Главный корпус</h2>
+                            <p id="locationSubtitle">Центральное здание университета</p>
+                        </div>
+                    </div>
+                    <div class="location-description" id="locationDescription">
+                        Главный корпус университета — это сердце кампуса. Здесь расположены административные офисы, 
+                        ректорат, деканаты факультетов и основные аудитории для лекций. Здание построено в современном 
+                        архитектурном стиле и оснащено передовыми технологиями для обучения.
+                    </div>
+                    <ul class="location-features" id="locationFeatures">
+                        <li>Административные офисы</li>
+                        <li>Лекционные залы</li>
+                        <li>Современное оборудование</li>
+                        <li>Wi-Fi по всему зданию</li>
+                    </ul>
+                </div>
+
+                <!-- Map -->
+                <div class="map-card">
+                    <div class="map-card-header">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Расположение университета</h3>
+                    </div>
+                    <div class="map-container">
+                        <div id="universityMap"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Location data
+        const locations = {
+            'main-building': {
+                name: 'Главный корпус',
+                subtitle: 'Центральное здание университета',
+                icon: 'fa-building',
+                description: 'Главный корпус университета — это сердце кампуса. Здесь расположены административные офисы, ректорат, деканаты факультетов и основные аудитории для лекций. Здание построено в современном архитектурном стиле и оснащено передовыми технологиями для обучения.',
+                features: [
+                    'Административные офисы',
+                    'Лекционные залы',
+                    'Современное оборудование',
+                    'Wi-Fi по всему зданию'
+                ],
+                tourUrl: 'https://www.youtube.com/embed/QuLZZpPtlF0',
+                isYouTube: true
+            },
+            'library': {
+                name: 'Библиотека',
+                subtitle: 'Информационный центр',
+                icon: 'fa-book',
+                description: 'Современная библиотека с обширным фондом книг, электронных ресурсов и научных журналов. Здесь студенты могут работать в тихих читальных залах, использовать компьютеры для исследований и получить доступ к международным базам данных.',
+                features: [
+                    'Более 500 000 книг',
+                    'Электронные ресурсы',
+                    'Читальные залы',
+                    'Компьютерные классы'
+                ],
+                tourUrl: null
+            },
+            'laboratory': {
+                name: 'Лаборатории',
+                subtitle: 'Научно-исследовательский центр',
+                icon: 'fa-flask',
+                description: 'Современные лаборатории оснащены передовым оборудованием для проведения научных исследований. Здесь студенты и преподаватели работают над инновационными проектами в области химии, физики, биологии и инженерии.',
+                features: [
+                    'Современное оборудование',
+                    'Исследовательские проекты',
+                    'Безопасные условия',
+                    'Профессиональное руководство'
+                ],
+                tourUrl: null
+            },
+            'classroom': {
+                name: 'Аудитории',
+                subtitle: 'Учебные помещения',
+                icon: 'fa-chalkboard-teacher',
+                description: 'Просторные и современные аудитории оборудованы интерактивными досками, проекторами и мультимедийными системами. Здесь проходят лекции, семинары и практические занятия для студентов всех факультетов.',
+                features: [
+                    'Интерактивные доски',
+                    'Мультимедийное оборудование',
+                    'Комфортные условия',
+                    'Вместимость до 200 человек'
+                ],
+                tourUrl: null
+            },
+            'dormitory': {
+                name: 'Общежитие',
+                subtitle: 'Студенческое жильё',
+                icon: 'fa-bed',
+                description: 'Комфортабельные общежития для студентов с современными условиями проживания. Каждая комната оборудована необходимой мебелью, есть общие кухни, прачечные и зоны отдыха. Безопасность обеспечивается круглосуточной охраной.',
+                features: [
+                    'Комфортные комнаты',
+                    'Общие кухни',
+                    'Прачечные',
+                    'Зоны отдыха',
+                    'Круглосуточная охрана'
+                ],
+                tourUrl: null
+            },
+            'sports': {
+                name: 'Спорткомплекс',
+                subtitle: 'Спортивные объекты',
+                icon: 'fa-dumbbell',
+                description: 'Современный спортивный комплекс включает в себя тренажёрный зал, бассейн, спортивные залы для различных видов спорта и открытые площадки. Студенты могут заниматься физкультурой и участвовать в спортивных секциях.',
+                features: [
+                    'Тренажёрный зал',
+                    'Бассейн',
+                    'Спортивные залы',
+                    'Открытые площадки',
+                    'Спортивные секции'
+                ],
+                tourUrl: null
+            },
+            'cafeteria': {
+                name: 'Столовая',
+                subtitle: 'Питание студентов',
+                icon: 'fa-utensils',
+                description: 'Просторная столовая предлагает разнообразное и здоровое питание для студентов и преподавателей. Здесь можно выбрать блюда на любой вкус: от традиционной казахской кухни до европейских блюд.',
+                features: [
+                    'Разнообразное меню',
+                    'Здоровое питание',
+                    'Доступные цены',
+                    'Удобное расположение'
+                ],
+                tourUrl: null
+            }
+        };
+
+        let currentLocation = 'main-building';
+        let map = null;
+
+        // Switch location
+        function switchLocation(locationId, button) {
+            // Update active button
+            document.querySelectorAll('.location-btn').forEach(btn => btn.classList.remove('active'));
+            if (button) button.classList.add('active');
+
+            // Update location data
+            const location = locations[locationId];
+            if (!location) return;
+
+            currentLocation = locationId;
+
+            // Update UI
+            document.getElementById('currentLocationName').textContent = location.name;
+            document.getElementById('locationTitle').textContent = location.name;
+            document.getElementById('locationSubtitle').textContent = location.subtitle;
+            document.getElementById('locationDescription').textContent = location.description;
+            document.getElementById('locationIcon').className = `fas ${location.icon}`;
+            
+            // Update features
+            const featuresList = document.getElementById('locationFeatures');
+            featuresList.innerHTML = location.features.map(feature => 
+                `<li>${feature}</li>`
+            ).join('');
+
+            // Update 3D viewer
+            update3DViewer(location);
+        }
+
+        // Update 3D viewer
+        function update3DViewer(location) {
+            const iframe = document.getElementById('tourIframe');
+            const placeholder = document.querySelector('.viewer-placeholder');
+
+            // For demonstration, we show placeholder
+            // In production, you would load actual 3D tour URL here
+            if (location.tourUrl) {
+                // Convert YouTube URL to embed format if needed
+                let embedUrl = location.tourUrl;
+                if (location.isYouTube) {
+                    // Extract video ID if URL contains it
+                    let videoId = '';
+                    if (location.tourUrl.includes('/embed/')) {
+                        videoId = location.tourUrl.split('/embed/')[1].split('?')[0];
+                    } else if (location.tourUrl.includes('youtu.be/')) {
+                        videoId = location.tourUrl.split('youtu.be/')[1].split('?')[0];
+                    } else if (location.tourUrl.includes('youtube.com/watch')) {
+                        videoId = location.tourUrl.split('v=')[1].split('&')[0];
+                    } else {
+                        videoId = location.tourUrl.split('/embed/')[1] || location.tourUrl;
+                    }
+                    
+                    // Build embed URL with autoplay and 4K quality parameters
+                    // Note: mute=1 is required for autoplay in most browsers due to autoplay policies
+                    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&vq=hd2160&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+                } else if (location.tourUrl.includes('youtu.be/')) {
+                    // Convert youtu.be to embed format
+                    const videoId = location.tourUrl.split('youtu.be/')[1].split('?')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&vq=hd2160&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+                } else if (location.tourUrl.includes('youtube.com/watch')) {
+                    // Convert watch URL to embed format
+                    const videoId = location.tourUrl.split('v=')[1].split('&')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&vq=hd2160&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+                }
+                
+                // Load iframe with video
+                iframe.src = embedUrl;
+                iframe.style.display = 'block';
+                placeholder.style.display = 'none';
+                
+                // Unmute video after a short delay (YouTube autoplay policy requires mute=1 initially)
+                if (location.isYouTube) {
+                    setTimeout(() => {
+                        try {
+                            // Try to unmute using YouTube API if available
+                            if (iframe.contentWindow) {
+                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                            }
+                        } catch (e) {
+                            // Silently fail if cross-origin restrictions apply
+                        }
+                    }, 1000);
+                }
+            } else {
+                iframe.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.querySelector('h3').textContent = location.name;
+                placeholder.querySelector('p').textContent = '3D-тур будет доступен в ближайшее время';
+            }
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            const viewer = document.querySelector('.viewer-content');
+            if (!document.fullscreenElement) {
+                viewer.requestFullscreen().catch(err => {
+                    alert('Ошибка при переходе в полноэкранный режим');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Reset view
+        function resetView() {
+            // Reset 3D viewer to default position
+            const iframe = document.getElementById('tourIframe');
+            if (iframe.src) {
+                iframe.src = iframe.src; // Reload iframe
+            }
+            alert('Вид сброшен');
+        }
+
+        // Initialize map
+        function initMap() {
+            if (typeof DG === 'undefined') {
+                setTimeout(initMap, 100);
+                return;
+            }
+
+            DG.then(function() {
+                map = DG.map('universityMap', {
+                    center: [43.2220, 76.8512], // Алматы, КазНУ
+                    zoom: 17,
+                    zoomControl: true
+                });
+
+                // Add marker
+                const marker = DG.marker([43.2220, 76.8512], {
+                    icon: DG.icon({
+                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40]
+                    })
+                }).addTo(map);
+
+                // Add popup
+                marker.bindPopup(`
+                    <div style="padding: 10px;">
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 700;">КазНУ им. аль-Фараби</h3>
+                        <p style="margin: 0; color: #64748b;">ул. аль-Фараби, 71, Алматы</p>
+                        <button onclick="buildRoute()" style="margin-top: 10px; padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            Построить маршрут
+                        </button>
+                    </div>
+                `);
+
+                // Add route control
+                const routeControl = DG.control.routing({
+                    waypoints: [
+                        [43.2220, 76.8512] // University location
+                    ],
+                    serviceUrl: 'https://routing.api.2gis.com/routing/7.0.0/global'
+                });
+            });
+        }
+
+        // Build route
+        function buildRoute() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    
+                    if (map) {
+                        // Add route from user location to university
+                        const routeControl = DG.control.routing({
+                            waypoints: [
+                                [userLat, userLng],
+                                [43.2220, 76.8512] // University
+                            ],
+                            serviceUrl: 'https://routing.api.2gis.com/routing/7.0.0/global'
+                        });
+                        map.addControl(routeControl);
+                        alert('Маршрут построен!');
+                    }
+                }, function() {
+                    alert('Не удалось определить ваше местоположение. Разрешите доступ к геолокации.');
+                });
+            } else {
+                alert('Геолокация не поддерживается вашим браузером.');
+            }
+        }
+
+        // Profile functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            
+            document.getElementById('profileName').querySelector('span').textContent = userName;
+            document.getElementById('profileEmail').querySelector('span').textContent = userEmail;
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Initialize
+        loadUserProfile();
+        initMap();
+        
+        // Set initial location
+        switchLocation('main-building', document.querySelector('.location-btn'));
+    </script>
+    
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

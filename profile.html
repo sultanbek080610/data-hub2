@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой профиль | DataHub</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+        
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; }
+        .btn-login {
+            background: var(--text-main); color: white;
+            padding: 10px 24px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--primary); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            min-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1001;
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-header:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        }
+        .profile-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-name i {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .profile-email {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-email i {
+            font-size: 0.75rem;
+        }
+        .profile-menu {
+            padding: 10px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .profile-menu-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        .profile-menu-item i {
+            width: 20px;
+            color: var(--primary);
+        }
+        .profile-menu-item.logout {
+            color: #dc2626;
+            border-top: 1px solid #f1f5f9;
+            margin-top: 5px;
+            padding-top: 15px;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .profile-menu-item.logout i {
+            color: #dc2626;
+        }
+
+        /* --- PROFILE PAGE CONTENT --- */
+        .profile-container {
+            margin-top: var(--header-height);
+            padding: 60px 40px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .page-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Profile Hero Section */
+        .profile-hero {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        .profile-avatar-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 3rem;
+            flex-shrink: 0;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .profile-avatar-large:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.3);
+        }
+        .profile-avatar-large .edit-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-text);
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .profile-info {
+            flex-grow: 1;
+        }
+        .profile-info h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+        .profile-info .profile-email-display {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-info .profile-email-display i {
+            color: var(--primary);
+        }
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 50px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .section-title i {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: 'Manrope', sans-serif;
+            transition: all 0.3s;
+            background: #f8fafc;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.4);
+        }
+        .btn-secondary {
+            background: #f8fafc;
+            color: var(--text-main);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Favorites Grid */
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .favorite-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .favorite-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+        }
+        .favorite-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .favorite-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .favorite-card .remove-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .favorite-card .remove-btn:hover {
+            background: #dc2626;
+            color: white;
+            transform: scale(1.1);
+        }
+        .favorite-card .city {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .favorite-card .desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        /* Settings Toggle */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .setting-item:hover {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .setting-info {
+            flex-grow: 1;
+        }
+        .setting-info h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .setting-info p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            left: 33px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-container {
+                padding: 30px 20px;
+            }
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+            .content-section {
+                padding: 30px 20px;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .profile-hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+            }
+            .profile-stats {
+                justify-content: center;
+            }
+            .nav-links {
+                display: none;
+            }
+            .profile-dropdown {
+                right: -10px;
+                min-width: 220px;
+            }
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .favorites-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+        <nav class="nav-links">
+            <a href="glavni.html" class="nav-item">Об университете</a>
+            <a href="3d.html" class="nav-item">3D-тур</a>
+            <a href="priom.html" class="nav-item">Приём и поступление</a>
+            <a href="programs.html" class="nav-item">Академические программы</a>
+            <a href="mejdu.html" class="nav-item">Международное сотрудничество</a>
+            <a href="funksia.html" class="nav-item">Функция сравнения</a>
+        </nav>
+        <div class="user-profile">
+            <div class="profile-avatar" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-header" onclick="window.location.href='profile.html'">
+                    <div class="profile-name" id="profileName">
+                        <i class="fas fa-user"></i>
+                        <span>Пользователь</span>
+                    </div>
+                    <div class="profile-email" id="profileEmail">
+                        <i class="fas fa-envelope"></i>
+                        <span>user@example.com</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    <a href="profile.html" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Мой профиль</span>
+                    </a>
+                    <a href="#favorites" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Избранное</span>
+                    </a>
+                    <a href="#settings" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-cog"></i>
+                        <span>Настройки</span>
+                    </a>
+                    <a href="#help" class="profile-menu-item" onclick="closeProfileMenu()">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Помощь</span>
+                    </a>
+                    <div class="profile-menu-item logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Выйти</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Мой профиль</h1>
+            <p>Управляйте своими данными, настройками и избранными университетами</p>
+        </div>
+
+        <!-- Profile Hero Section -->
+        <div class="profile-hero">
+            <div class="profile-avatar-large" id="largeAvatar" onclick="document.getElementById('avatarInput').click()">
+                <span id="avatarInitials">П</span>
+                <div class="edit-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+            <div class="profile-info">
+                <h2 id="profileNameDisplay">Пользователь</h2>
+                <div class="profile-email-display">
+                    <i class="fas fa-envelope"></i>
+                    <span id="profileEmailDisplay">user@example.com</span>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="favoritesCount">0</span>
+                        <span class="stat-label">Избранных</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="comparisonsCount">0</span>
+                        <span class="stat-label">Сравнений</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="viewsCount">0</span>
+                        <span class="stat-label">Просмотров</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-edit"></i>
+                Личная информация
+            </h2>
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Имя</label>
+                        <input type="text" id="firstName" name="firstName" placeholder="Введите ваше имя" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Фамилия</label>
+                        <input type="text" id="lastName" name="lastName" placeholder="Введите вашу фамилию" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (XXX) XXX-XX-XX">
+                </div>
+                <div class="form-group">
+                    <label for="city">Город</label>
+                    <select id="city" name="city">
+                        <option value="">Выберите город</option>
+                        <option value="almaty">Алматы</option>
+                        <option value="astana">Астана</option>
+                        <option value="shymkent">Шымкент</option>
+                        <option value="other">Другой</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bio">О себе</label>
+                    <textarea id="bio" name="bio" placeholder="Расскажите о себе..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">
+                        <i class="fas fa-undo"></i> Отменить
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Favorites Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-bookmark"></i>
+                Избранные университеты
+            </h2>
+            <div class="favorites-grid" id="favoritesGrid">
+                <!-- Favorites will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-cog"></i>
+                Настройки
+            </h2>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4>Email уведомления</h4>
+                    <p>Получать уведомления о новых программах и грантах</p>
+                </div>
+                <div class="toggle-switch" id="emailNotifications" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4>SMS уведомления</h4>
+                    <p>Получать важные обновления по SMS</p>
+                </div>
+                <div class="toggle-switch" id="smsNotifications" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h4>Публичный профиль</h4>
+                    <p>Разрешить другим пользователям видеть ваш профиль</p>
+                </div>
+                <div class="toggle-switch active" id="publicProfile" onclick="toggleSetting(this)"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load user profile data
+        function loadUserProfile() {
+            const userName = localStorage.getItem('userName') || 'Пользователь';
+            const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+            const firstName = localStorage.getItem('firstName') || '';
+            const lastName = localStorage.getItem('lastName') || '';
+            const phone = localStorage.getItem('phone') || '';
+            const city = localStorage.getItem('city') || '';
+            const bio = localStorage.getItem('bio') || '';
+            
+            // Update display
+            document.getElementById('profileNameDisplay').textContent = userName;
+            document.getElementById('profileEmailDisplay').textContent = userEmail;
+            document.getElementById('profileName').querySelector('span').textContent = userName;
+            document.getElementById('profileEmail').querySelector('span').textContent = userEmail;
+            
+            // Update form
+            if (firstName) document.getElementById('firstName').value = firstName;
+            if (lastName) document.getElementById('lastName').value = lastName;
+            document.getElementById('email').value = userEmail;
+            if (phone) document.getElementById('phone').value = phone;
+            if (city) document.getElementById('city').value = city;
+            if (bio) document.getElementById('bio').value = bio;
+            
+            // Update avatar initials
+            const initials = (firstName[0] || '') + (lastName[0] || '') || userName[0] || 'П';
+            document.getElementById('avatarInitials').textContent = initials.toUpperCase();
+            document.querySelector('.profile-avatar').innerHTML = initials.toUpperCase();
+            
+            // Load favorites
+            loadFavorites();
+            
+            // Load statistics
+            loadStatistics();
+        }
+
+        // Save profile
+        function saveProfile(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const city = document.getElementById('city').value;
+            const bio = document.getElementById('bio').value;
+            
+            const fullName = `${firstName} ${lastName}`.trim() || 'Пользователь';
+            
+            // Save to localStorage
+            localStorage.setItem('userName', fullName);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('firstName', firstName);
+            localStorage.setItem('lastName', lastName);
+            localStorage.setItem('phone', phone);
+            localStorage.setItem('city', city);
+            localStorage.setItem('bio', bio);
+            
+            // Update display
+            loadUserProfile();
+            
+            alert('Профиль успешно сохранён!');
+        }
+
+        // Reset form
+        function resetForm() {
+            loadUserProfile();
+        }
+
+        // Handle avatar upload
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatar = document.getElementById('largeAvatar');
+                    avatar.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
+                    localStorage.setItem('avatarImage', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Load favorites
+        function loadFavorites() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const grid = document.getElementById('favoritesGrid');
+            
+            if (favorites.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>Нет избранных университетов</h3>
+                        <p>Добавьте университеты в избранное, чтобы они отображались здесь</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = favorites.map((fav, index) => `
+                <div class="favorite-card">
+                    <div class="favorite-card-header">
+                        <h3>${fav.name || 'Университет'}</h3>
+                        <button class="remove-btn" onclick="removeFavorite(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="city">${fav.city || ''}</div>
+                    <div class="desc">${fav.description || ''}</div>
+                </div>
+            `).join('');
+        }
+
+        // Remove favorite
+        function removeFavorite(index) {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            favorites.splice(index, 1);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            loadFavorites();
+            loadStatistics();
+        }
+
+        // Load statistics
+        function loadStatistics() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const comparisons = JSON.parse(localStorage.getItem('comparisons') || '[]');
+            const views = parseInt(localStorage.getItem('views') || '0');
+            
+            document.getElementById('favoritesCount').textContent = favorites.length;
+            document.getElementById('comparisonsCount').textContent = comparisons.length;
+            document.getElementById('viewsCount').textContent = views;
+        }
+
+        // Toggle setting
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+            const settingId = element.id;
+            localStorage.setItem(settingId, element.classList.contains('active'));
+        }
+
+        // Load settings
+        function loadSettings() {
+            const emailNotifications = localStorage.getItem('emailNotifications') === 'true';
+            const smsNotifications = localStorage.getItem('smsNotifications') === 'true';
+            const publicProfile = localStorage.getItem('publicProfile') !== 'false';
+            
+            if (emailNotifications) document.getElementById('emailNotifications').classList.add('active');
+            if (smsNotifications) document.getElementById('smsNotifications').classList.add('active');
+            if (publicProfile) document.getElementById('publicProfile').classList.add('active');
+        }
+
+        // Profile dropdown functions
+        function toggleProfile() {
+            const dropdown = document.getElementById('profileDropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        function closeProfileMenu() {
+            document.getElementById('profileDropdown').classList.remove('open');
+        }
+
+        function logout() {
+            if (confirm('Вы действительно хотите выйти?')) {
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userEmail');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('profileDropdown');
+            if (profile && !profile.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // Load saved avatar
+        const savedAvatar = localStorage.getItem('avatarImage');
+        if (savedAvatar) {
+            const avatar = document.getElementById('largeAvatar');
+            avatar.innerHTML = `<img src="${savedAvatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="Avatar">`;
+        }
+
+        // Initialize
+        loadUserProfile();
+        loadSettings();
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+

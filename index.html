@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | DataHub ВУЗ-ов РК</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1e40af;
+            --accent: #a3e635;        
+            --accent-text: #1a2e05;
+            
+            --bg-page: #f8fafc;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            
+            --radius-xl: 32px;
+            --shadow-soft: 0 20px 40px -10px rgba(37, 99, 235, 0.1);
+            --header-height: 80px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            min-height: 100vh;
+        }
+
+        /* --- BACKGROUND --- */
+        .iridescent-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(163, 230, 53, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(37, 99, 235, 0.1), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .logo {
+            font-weight: 800; font-size: 1.5rem; color: var(--primary);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            text-decoration: none;
+        }
+        .logo i { color: var(--accent); }
+
+        /* --- HERO SECTION --- */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: var(--header-height) 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 60px;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-slogan {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-image {
+            flex: 1;
+            max-width: 600px;
+            height: 500px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(163, 230, 53, 0.1));
+            background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1200');
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(163, 230, 53, 0.1));
+        }
+
+        /* --- AUTH FORM --- */
+        .auth-container {
+            flex: 1;
+            max-width: 480px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .auth-tab:hover {
+            color: var(--primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid #f1f5f9;
+            font-size: 1rem;
+            background: #f8fafc;
+            outline: none;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn-social {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: inherit;
+        }
+
+        .btn-social:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-google {
+            color: #4285f4;
+            border-color: #4285f4;
+        }
+
+        .btn-google:hover {
+            background: #4285f4;
+            color: white;
+        }
+
+        .btn-facebook {
+            color: #1877f2;
+            border-color: #1877f2;
+        }
+
+        .btn-facebook:hover {
+            background: #1877f2;
+            color: white;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- FEATURES SECTION --- */
+        .features-section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 60px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            transition: all 0.4s;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-soft);
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .feature-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--text-main);
+            color: white;
+            padding: 60px 40px 30px;
+            margin-top: 100px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            line-height: 1.8;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-content {
+                max-width: 100%;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .auth-container {
+                max-width: 100%;
+            }
+
+            .hero-image {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-slogan {
+                font-size: 1.1rem;
+            }
+
+            .auth-card {
+                padding: 30px 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iridescent-bg"></div>
+
+    <header>
+        <a href="glavni.html" class="logo">
+            <i class="fas fa-layer-group"></i> DataHub
+        </a>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">DataHub<br>ВУЗ-ов РК</h1>
+            <p class="hero-slogan">Полный каталог и детальное сравнение всех ВУЗов Казахстана.</p>
+        </div>
+
+        <div class="hero-image"></div>
+
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Войти</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Регистрация</button>
+                </div>
+
+                <!-- Login Form -->
+                <form class="auth-form active" id="loginForm">
+                    <div class="social-buttons">
+                        <button type="button" class="btn-social btn-google" onclick="loginWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            Войти через Google
+                        </button>
+                        <button type="button" class="btn-social btn-facebook" onclick="loginWithFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                            Войти через Facebook
+                        </button>
+                    </div>
+
+                    <div class="divider">
+                        <span>или</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Войти</button>
+
+                    <div class="forgot-password">
+                        <a href="#" onclick="alert('Функция восстановления пароля скоро будет доступна')">Забыли пароль?</a>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form class="auth-form" id="registerForm">
+                    <div class="social-buttons">
+                        <button type="button" class="btn-social btn-google" onclick="registerWithGoogle()">
+                            <i class="fab fa-google"></i>
+                            Регистрация через Google
+                        </button>
+                        <button type="button" class="btn-social btn-facebook" onclick="registerWithFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                            Регистрация через Facebook
+                        </button>
+                    </div>
+
+                    <div class="divider">
+                        <span>или</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerName">Имя</label>
+                        <input type="text" id="registerName" class="form-input" placeholder="Ваше имя" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" placeholder="your@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" class="form-input" placeholder="Минимум 8 символов" required minlength="8">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="registerPasswordConfirm">Подтвердите пароль</label>
+                        <input type="password" id="registerPasswordConfirm" class="form-input" placeholder="Повторите пароль" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Создать аккаунт</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2 class="section-title">Наши возможности</h2>
+        <p class="section-subtitle">Всё, что нужно для выбора идеального университета в одном месте</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <h3 class="feature-title">Общий каталог университетов</h3>
+                <p class="feature-desc">Полный список всех ВУЗов Казахстана с детальной информацией о каждом</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <h3 class="feature-title">Академические программы</h3>
+                <p class="feature-desc">Изучите все доступные программы обучения и выберите подходящую специальность</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="feature-title">Приём и поступление</h3>
+                <p class="feature-desc">Вся информация о требованиях, документах и сроках поступления</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <h3 class="feature-title">3D-тур</h3>
+                <p class="feature-desc">Виртуальные экскурсии по кампусам университетов в 3D формате</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <h3 class="feature-title">Международное сотрудничество</h3>
+                <p class="feature-desc">Информация о программах обмена, партнёрствах и международных возможностях</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="feature-title">Функция сравнения</h3>
+                <p class="feature-desc">Сравните несколько университетов по различным параметрам одновременно</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>DataHub</h3>
+                <p>Умная платформа для выбора университета в Казахстане. Сравнивайте, изучайте, выбирайте.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Навигация</h3>
+                <a href="glavni.html">Об университете</a>
+                <a href="priom.html">Приём и поступление</a>
+                <a href="programs.html">Академические программы</a>
+                <a href="mejdu.html">Международное сотрудничество</a>
+                <a href="funksia.html">Сравнение университетов</a>
+            </div>
+
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>Email: info@datahub.kz</p>
+                <p>Телефон: +7 (700) 123-45-67</p>
+                <p>Адрес: Алматы, Казахстан</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Социальные сети</h3>
+                <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="#"><i class="fab fa-facebook"></i> Facebook</a>
+                <a href="#"><i class="fab fa-telegram"></i> Telegram</a>
+                <a href="#"><i class="fab fa-youtube"></i> YouTube</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 DataHub. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                tabs[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        // Social login functions
+        function loginWithGoogle() {
+            alert('Вход через Google будет доступен в ближайшее время');
+        }
+
+        function loginWithFacebook() {
+            alert('Вход через Facebook будет доступен в ближайшее время');
+        }
+
+        function registerWithGoogle() {
+            alert('Регистрация через Google будет доступна в ближайшее время');
+        }
+
+        function registerWithFacebook() {
+            alert('Регистрация через Facebook будет доступна в ближайшее время');
+        }
+
+        // Form submissions
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Save to localStorage
+            localStorage.setItem('userName', email.split('@')[0]);
+            localStorage.setItem('userEmail', email);
+
+            alert('Добро пожаловать! Вы будете перенаправлены на главную страницу.');
+            window.location.href = 'glavni.html';
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            if (password !== passwordConfirm) {
+                alert('Пароли не совпадают!');
+                return;
+            }
+
+            if (password.length < 8) {
+                alert('Пароль должен содержать минимум 8 символов!');
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+
+            alert('Регистрация успешна! Добро пожаловать в DataHub!');
+            window.location.href = 'glavni.html';
+        });
+    </script>
+    <!-- AI Chat Widget -->
+    <script src="chat.js"></script>
+</body>
+</html>
+
